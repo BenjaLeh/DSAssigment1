@@ -5,16 +5,16 @@ import java.io.IOException;
 public class Server {
 	private String id = null;
 	private String host = null;
-	private String clientPort = null;
-	private String coordinationPort = null;
+	private int clientPort = 0;
+	private int coordinationPort = 0;
 	private boolean isItselft = false;
 	private boolean isActived = false;
 
 	private Server(String id, String host, String clientPort, String coordinationPort) {
 		this.id = id;
 		this.host = host;
-		this.clientPort = clientPort;
-		this.coordinationPort = coordinationPort;
+		this.clientPort = Integer.parseInt(clientPort);
+		this.coordinationPort = Integer.parseInt(coordinationPort);
 	}
 
 	public static Server getInstance(String configLine) throws IOException {
@@ -41,11 +41,11 @@ public class Server {
 		return host;
 	}
 
-	public String getClientPort() {
+	public int getClientPort() {
 		return clientPort;
 	}
 
-	public String getCoordinationPort() {
+	public int getCoordinationPort() {
 		return coordinationPort;
 	}
 

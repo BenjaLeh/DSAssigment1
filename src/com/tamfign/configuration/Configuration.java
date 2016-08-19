@@ -33,4 +33,8 @@ public class Configuration {
 		}
 		return _instance;
 	}
+
+	public ArrayList<Server> getServerList() {
+		return serverList;
+	}
 }
