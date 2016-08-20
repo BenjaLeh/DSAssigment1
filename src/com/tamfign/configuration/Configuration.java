@@ -3,13 +3,12 @@ package com.tamfign.configuration;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import com.tamfign.main.ServerArguments;
 
 public class Configuration {
 	private static Configuration _instance = null;
-	private ArrayList<Server> serverList = null;
+	private ServerConfig itself = null;
 
 	private Configuration(ServerArguments arguments) throws IOException {
 		FileReader reader = new FileReader(arguments.getServerConfigPath());
@@ -17,14 +16,27 @@ public class Configuration {
 
 		String configLine = br.readLine();
 		while (configLine != null) {
-			Server server = Server.getInstance(configLine);
+			ServerConfig server = ServerConfig.getInstance(configLine);
 			if (arguments.getServerId() != null && arguments.getServerId().equals(server.getId())) {
+				this.itself = server;
 				server.setActived(true);
 				server.setItselft(true);
 			}
-			serverList.add(server);
+			ServerListController.getInstance().addServer(server);
 		}
 		br.close();
+	}
+
+	public static String getServerId() {
+		return _instance.itself.getId();
+	}
+
+	public static int getClientPort() {
+		return _instance.itself.getClientPort();
+	}
+
+	public static int getCoordinationPort() {
+		return _instance.itself.getCoordinationPort();
 	}
 
 	public static Configuration getInstance(ServerArguments arguments) throws IOException {
@@ -32,9 +44,5 @@ public class Configuration {
 			_instance = new Configuration(arguments);
 		}
 		return _instance;
-	}
-
-	public ArrayList<Server> getServerList() {
-		return serverList;
 	}
 }

@@ -2,7 +2,7 @@ package com.tamfign.configuration;
 
 import java.io.IOException;
 
-public class Server {
+public class ServerConfig {
 	private String id = null;
 	private String host = null;
 	private int clientPort = 0;
@@ -10,19 +10,19 @@ public class Server {
 	private boolean isItselft = false;
 	private boolean isActived = false;
 
-	private Server(String id, String host, String clientPort, String coordinationPort) {
+	private ServerConfig(String id, String host, String clientPort, String coordinationPort) {
 		this.id = id;
 		this.host = host;
 		this.clientPort = Integer.parseInt(clientPort);
 		this.coordinationPort = Integer.parseInt(coordinationPort);
 	}
 
-	public static Server getInstance(String configLine) throws IOException {
+	public static ServerConfig getInstance(String configLine) throws IOException {
 		String[] configs = configLine.split("\t");
 		if (configs.length < 4)
 			throw new IOException("Configuration File's Format invalid.");
 
-		return new Server(configs[0], configs[1], configs[2], configs[3]);
+		return new ServerConfig(configs[0], configs[1], configs[2], configs[3]);
 	}
 
 	public boolean isItselft() {
