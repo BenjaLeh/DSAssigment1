@@ -5,8 +5,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import com.tamfign.configuration.Configuration;
-import com.tamfign.configuration.ServerConfig;
-import com.tamfign.configuration.ServerListController;
+import com.tamfign.model.ServerConfig;
+import com.tamfign.model.ServerListController;
 
 public class CoordinateListener extends Connector implements Runnable {
 

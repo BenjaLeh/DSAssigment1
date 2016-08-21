@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import com.tamfign.main.ServerArguments;
+import com.tamfign.model.ServerConfig;
+import com.tamfign.model.ServerListController;
 
 public class Configuration {
 	private static Configuration _instance = null;

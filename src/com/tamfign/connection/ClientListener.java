@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import com.tamfign.configuration.Configuration;
-import com.tamfign.configuration.ServerListController;
+import com.tamfign.model.ServerListController;
 
 public class ClientListener extends Connector implements Runnable {
 	public void run() {
