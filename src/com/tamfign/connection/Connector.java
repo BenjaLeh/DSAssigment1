@@ -29,7 +29,7 @@ public abstract class Connector {
 		this.localSocketsList = new HashMap<String, Socket>();
 	}
 
-	public abstract void requestTheOther(String cmd, Object obj);
+	public abstract boolean requestTheOther(String cmd, Object obj);
 
 	protected ConnectController getController() {
 		return this.controller;
@@ -55,12 +55,27 @@ public abstract class Connector {
 		}
 	}
 
+	protected void broadcast(String cmd) {
+		Iterator<Entry<String, Socket>> it = localSocketsList.entrySet().iterator();
+		while (it.hasNext()) {
+			Socket socket = it.next().getValue();
+			try {
+				// TODO Multi-thread?
+				new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())).write(cmd);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
 	protected boolean broadcastAndGetResult(String cmd) {
 		boolean ret = false;
 		Iterator<Entry<String, Socket>> it = localSocketsList.entrySet().iterator();
 		while (it.hasNext()) {
 			Socket socket = it.next().getValue();
 			try {
+				// TODO Multi-thread?
 				new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())).write(cmd);
 				BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				JSONObject root = (JSONObject) new JSONParser().parse(br.readLine());

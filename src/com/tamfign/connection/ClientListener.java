@@ -41,8 +41,8 @@ public class ClientListener extends Connector implements Runnable {
 	}
 
 	@Override
-	public void requestTheOther(String cmd, Object obj) {
-		getController().requestServer(cmd, obj);
+	public boolean requestTheOther(String cmd, Object obj) {
+		return getController().requestServer(cmd, obj);
 	}
 
 	public boolean runRequest(String cmd, Object obj) {

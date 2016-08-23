@@ -1,15 +1,16 @@
 package com.tamfign.command;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.tamfign.connection.ConnectController;
 import com.tamfign.connection.Connector;
 
 public abstract class Handler implements Runnable {
@@ -54,6 +55,16 @@ public abstract class Handler implements Runnable {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 			}
+		}
+	}
+
+	protected void response(String cmd) {
+		try {
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			bw.write(cmd);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

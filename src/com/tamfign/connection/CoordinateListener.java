@@ -77,7 +77,7 @@ public class CoordinateListener extends Connector implements Runnable {
 
 	@Override
 	protected Handler getHandler(Socket socket) {
-		return new CoordinateHandler(socket);
+		return new CoordinateHandler(this, socket);
 	}
 
 	public boolean runRequest(String cmd, Object obj) {
@@ -89,19 +89,25 @@ public class CoordinateListener extends Connector implements Runnable {
 			identity = (String) obj;
 			ret = broadcastLockIdentity(identity);
 			break;
+		case Command.CMD_RELEASE_IDENTITY:
+			identity = (String) obj;
+			broadcastReleaseIdentity(identity);
+			break;
 		default:
 		}
 		return ret;
 	}
 
+	private void broadcastReleaseIdentity(String identity) {
+		broadcast(identityCmd.releaseIdentityRq(Configuration.getServerId(), identity));
+	}
+
 	private boolean broadcastLockIdentity(String identity) {
-		String cmd = identityCmd.lockIdentityRq(Configuration.getServerId(), identity);
-		return false;
+		return broadcastAndGetResult(identityCmd.lockIdentityRq(Configuration.getServerId(), identity));
 	}
 
 	@Override
-	public void requestTheOther(String cmd, Object obj) {
-		// TODO Auto-generated method stub
-
+	public boolean requestTheOther(String cmd, Object obj) {
+		return getController().requestClient(cmd, obj);
 	}
 }

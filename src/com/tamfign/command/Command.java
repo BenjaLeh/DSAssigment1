@@ -41,9 +41,10 @@ public class Command {
 	protected final static String P_CONTENT = "content";
 
 	public final static String CMD_LOCK_IDENTITY = "CMD_LOCK_IDENTITY";
+	public final static String CMD_RELEASE_IDENTITY = "CMD_RELEASE_IDENTITY";
 
 	public String marshal(JSONObject root) {
-		return null;
+		return null;// TODO
 	}
 
 	public JSONObject unmarshal(String cmd) throws ParseException {

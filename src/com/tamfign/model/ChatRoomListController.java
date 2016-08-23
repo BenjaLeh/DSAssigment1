@@ -3,9 +3,12 @@ package com.tamfign.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.tamfign.configuration.Configuration;
+
 public class ChatRoomListController {
 	private HashMap<String, ChatRoom> roomList = null;
 	private static ChatRoomListController _instance = null;
+	private static final String MAIN_HALL = "MainHall-";
 
 	private ChatRoomListController() {
 		this.roomList = new HashMap<String, ChatRoom>();
@@ -34,5 +37,9 @@ public class ChatRoomListController {
 		ArrayList<String> ret = new ArrayList<String>();
 		ret.addAll(roomList.keySet());
 		return ret;
+	}
+
+	public String getMainHall() {
+		return MAIN_HALL + Configuration.getServerId();
 	}
 }

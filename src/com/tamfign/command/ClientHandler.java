@@ -14,7 +14,7 @@ import com.tamfign.configuration.Configuration;
 import com.tamfign.connection.ClientListener;
 import com.tamfign.connection.ConnectController;
 import com.tamfign.model.ChatRoomListController;
-import com.tamfign.model.IndentityListController;
+import com.tamfign.model.IdentityListController;
 import com.tamfign.model.ServerConfig;
 
 public class ClientHandler extends Handler {
@@ -51,7 +51,7 @@ public class ClientHandler extends Handler {
 			if (lockIdentity(id)) {
 				createIdentity(id);
 				approveIdentity(id);
-				broadcastRoomChange(id, former, newRoom);
+				broadcastRoomChange(id, "", ChatRoomListController.getInstance().getMainHall());
 			} else {
 				disapproveIdentity(id);
 			}
@@ -189,11 +189,11 @@ public class ClientHandler extends Handler {
 	}
 
 	private void sendDisapproveIdentity(String id) {
-		String cmd = identityCmd.newIdentityRs(id, false);
+		response(identityCmd.newIdentityRs(id, false));
 	}
 
 	private void approveIdentity(String id) {
-		String cmd = identityCmd.newIdentityRs(id, true);
+		response(identityCmd.newIdentityRs(id, true));
 	}
 
 	private void broadcastRoomChange(String id, String former, String newRoom) {
@@ -201,18 +201,18 @@ public class ClientHandler extends Handler {
 	}
 
 	private void createIdentity(String identity) {
-		IndentityListController.getInstance().addIndentity(Configuration.getServerId(), identity);
+		IdentityListController.getInstance().addIndentity(Configuration.getServerId(), identity);
 		this.thisClientId = identity;
 		certainSocket(identity);
 	}
 
 	private boolean lockIdentity(String identity) {
-		getConnector().requestTheOther(Command.CMD_LOCK_IDENTITY, identity);
+		boolean ret = getConnector().requestTheOther(Command.CMD_LOCK_IDENTITY, identity);
 		releaseIdentity(identity);
-		return false;
+		return ret;
 	}
 
 	private void releaseIdentity(String identity) {
-		String cmd = identityCmd.releaseIdentityRq(Configuration.getServerId(), identity);
+		getConnector().requestTheOther(Command.CMD_RELEASE_IDENTITY, identity);
 	}
 }
