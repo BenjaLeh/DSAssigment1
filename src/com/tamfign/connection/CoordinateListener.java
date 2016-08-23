@@ -4,11 +4,28 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import com.tamfign.command.ChatRoomCmd;
+import com.tamfign.command.Command;
+import com.tamfign.command.CoordinateHandler;
+import com.tamfign.command.Handler;
+import com.tamfign.command.IdentityCmd;
+import com.tamfign.command.MessageCmd;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.model.ServerConfig;
 import com.tamfign.model.ServerListController;
 
 public class CoordinateListener extends Connector implements Runnable {
+
+	private ChatRoomCmd chatRoomCmd = null;
+	private IdentityCmd identityCmd = null;
+	private MessageCmd messageCmd = null;
+
+	protected CoordinateListener(ConnectController controller) {
+		super(controller);
+		chatRoomCmd = new ChatRoomCmd();
+		identityCmd = new IdentityCmd();
+		messageCmd = new MessageCmd();
+	}
 
 	public void run() {
 		checkOtherServers();
@@ -61,5 +78,30 @@ public class CoordinateListener extends Connector implements Runnable {
 	@Override
 	protected Handler getHandler(Socket socket) {
 		return new CoordinateHandler(socket);
+	}
+
+	public boolean runRequest(String cmd, Object obj) {
+		String identity;
+		boolean ret = false;
+
+		switch (cmd) {
+		case Command.CMD_LOCK_IDENTITY:
+			identity = (String) obj;
+			ret = broadcastLockIdentity(identity);
+			break;
+		default:
+		}
+		return ret;
+	}
+
+	private boolean broadcastLockIdentity(String identity) {
+		String cmd = identityCmd.lockIdentityRq(Configuration.getServerId(), identity);
+		return false;
+	}
+
+	@Override
+	public void requestTheOther(String cmd, Object obj) {
+		// TODO Auto-generated method stub
+
 	}
 }

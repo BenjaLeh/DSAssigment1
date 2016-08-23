@@ -41,7 +41,7 @@ public class Configuration {
 		return _instance.itself.getCoordinationPort();
 	}
 
-	public static Configuration getInstance(ServerArguments arguments) throws IOException {
+	public static Configuration init(ServerArguments arguments) throws IOException {
 		if (_instance != null) {
 			_instance = new Configuration(arguments);
 		}

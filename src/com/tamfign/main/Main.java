@@ -13,13 +13,12 @@ public class Main {
 	public static void main(String[] args) {
 		ServerArguments arguments = new ServerArguments();
 		CmdLineParser parser = new CmdLineParser(arguments);
-		Configuration config = null;
 		ConnectController controller = null;
 
 		try {
 			parser.parseArgument(args);
-			config = Configuration.getInstance(arguments);
-			controller = ConnectController.getInstance(config);
+			Configuration.init(arguments);
+			controller = ConnectController.getInstance();
 			controller.run();
 		} catch (CmdLineException e) {
 			System.err.println("Example: java -jar server.jar -n serverid -l servers_conf");

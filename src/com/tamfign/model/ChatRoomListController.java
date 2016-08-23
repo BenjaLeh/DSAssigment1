@@ -1,5 +1,6 @@
 package com.tamfign.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ChatRoomListController {
@@ -17,10 +18,7 @@ public class ChatRoomListController {
 		return _instance;
 	}
 
-	public void addRoom(String roomId, String serverId, String owner) throws ModelListException {
-		if (roomList.containsKey(roomId)) {
-			throw new ModelListException("Room Exist.");
-		}
+	public void addRoom(String roomId, String serverId, String owner) {
 		roomList.put(roomId, new ChatRoom(roomId, serverId, owner));
 	}
 
@@ -30,5 +28,11 @@ public class ChatRoomListController {
 
 	public boolean isRoomExists(String roomId) {
 		return roomList.containsKey(roomId);
+	}
+
+	public ArrayList<String> getList() {
+		ArrayList<String> ret = new ArrayList<String>();
+		ret.addAll(roomList.keySet());
+		return ret;
 	}
 }

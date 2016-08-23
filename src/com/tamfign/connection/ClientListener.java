@@ -2,11 +2,19 @@ package com.tamfign.connection;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.HashMap;
 
+import com.tamfign.command.ClientHandler;
+import com.tamfign.command.Handler;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.model.ServerListController;
 
 public class ClientListener extends Connector implements Runnable {
+
+	protected ClientListener(ConnectController controller) {
+		super(controller);
+	}
+
 	public void run() {
 		while (true) {
 			if (!ServerListController.getInstance().isAllServerOn()) {
@@ -29,6 +37,16 @@ public class ClientListener extends Connector implements Runnable {
 
 	@Override
 	protected Handler getHandler(Socket socket) {
-		return new ClientHandler(socket);
+		return new ClientHandler(this, socket);
+	}
+
+	@Override
+	public void requestTheOther(String cmd, Object obj) {
+		getController().requestServer(cmd, obj);
+	}
+
+	public boolean runRequest(String cmd, Object obj) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

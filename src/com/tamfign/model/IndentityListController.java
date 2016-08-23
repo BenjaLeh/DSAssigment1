@@ -17,10 +17,7 @@ public class IndentityListController {
 		return _instance;
 	}
 
-	public void addIndentity(String serverId, String id) throws ModelListException {
-		if (indentityList.containsKey(id)) {
-			throw new ModelListException("Indentity Exist");
-		}
+	public void addIndentity(String serverId, String id) {
 		indentityList.put(id, serverId);
 	}
 

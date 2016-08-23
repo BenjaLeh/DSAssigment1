@@ -30,7 +30,7 @@ public class Command {
 	protected final static String P_IDENTITY = "identity";
 	protected final static String P_SERVER_ID = "serverid";
 	protected final static String P_LOCKED = "locked";
-	protected final static String P_APPROVED = "approved";
+	public final static String P_APPROVED = "approved";
 	protected final static String P_FORMER = "former";
 	protected final static String P_ROOM_ID = "roomid";
 	protected final static String P_ROOMS = "rooms";
@@ -39,6 +39,8 @@ public class Command {
 	protected final static String P_HOST = "host";
 	protected final static String P_PORT = "port";
 	protected final static String P_CONTENT = "content";
+
+	public final static String CMD_LOCK_IDENTITY = "CMD_LOCK_IDENTITY";
 
 	public String marshal(JSONObject root) {
 		return null;

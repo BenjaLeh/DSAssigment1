@@ -139,4 +139,12 @@ public class ChatRoomCmd extends Command {
 		return root.toJSONString();
 	}
 
+	public String releaseRoom(String serverId, String roomId, boolean result) {
+		JSONObject root = new JSONObject();
+		root.put(TYPE, TYPE_RELEASE_ROOM);
+		root.put(P_SERVER_ID, serverId);
+		root.put(P_ROOM_ID, roomId);
+		root.put(P_APPROVED, result);
+		return root.toJSONString();
+	}
 }
