@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.json.simple.JSONObject;
@@ -39,6 +40,10 @@ public abstract class Connector {
 		localSocketsList.put(id, socket);
 	}
 
+	protected Iterator<Entry<String, Socket>> getLocalSocketListIt() {
+		return this.localSocketsList.entrySet().iterator();
+	}
+
 	protected void keepListenPortAndAcceptMultiClient(int port) throws IOException {
 		ServerSocket server = new ServerSocket(port);
 		Socket socket;
@@ -55,16 +60,18 @@ public abstract class Connector {
 		}
 	}
 
-	protected void broadcast(String cmd) {
+	public void broadcast(String cmd) {
 		Iterator<Entry<String, Socket>> it = localSocketsList.entrySet().iterator();
 		while (it.hasNext()) {
 			Socket socket = it.next().getValue();
-			try {
-				// TODO Multi-thread?
-				new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())).write(cmd);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			write(socket, cmd);
+		}
+	}
+
+	protected void broadcast(List<Socket> listenerList, String cmd) {
+		if (listenerList != null) {
+			for (Socket socket : listenerList) {
+				write(socket, cmd);
 			}
 		}
 	}
@@ -75,8 +82,7 @@ public abstract class Connector {
 		while (it.hasNext()) {
 			Socket socket = it.next().getValue();
 			try {
-				// TODO Multi-thread?
-				new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())).write(cmd);
+				write(socket, cmd);
 				BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				JSONObject root = (JSONObject) new JSONParser().parse(br.readLine());
 				ret &= Boolean.parseBoolean((String) root.get(Command.P_APPROVED));
@@ -89,6 +95,19 @@ public abstract class Connector {
 			}
 		}
 		return ret;
+	}
+
+	private void write(Socket socket, String cmd) {
+		BufferedWriter bw = null;
+		try {
+			// TODO Multi-thread?
+			bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			bw.write(cmd);
+			bw.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	protected void close(Socket socket) {

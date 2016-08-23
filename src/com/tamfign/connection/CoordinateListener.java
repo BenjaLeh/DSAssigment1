@@ -9,7 +9,6 @@ import com.tamfign.command.Command;
 import com.tamfign.command.CoordinateHandler;
 import com.tamfign.command.Handler;
 import com.tamfign.command.IdentityCmd;
-import com.tamfign.command.MessageCmd;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.model.ServerConfig;
 import com.tamfign.model.ServerListController;
@@ -18,13 +17,11 @@ public class CoordinateListener extends Connector implements Runnable {
 
 	private ChatRoomCmd chatRoomCmd = null;
 	private IdentityCmd identityCmd = null;
-	private MessageCmd messageCmd = null;
 
 	protected CoordinateListener(ConnectController controller) {
 		super(controller);
 		chatRoomCmd = new ChatRoomCmd();
 		identityCmd = new IdentityCmd();
-		messageCmd = new MessageCmd();
 	}
 
 	public void run() {
@@ -80,8 +77,9 @@ public class CoordinateListener extends Connector implements Runnable {
 		return new CoordinateHandler(this, socket);
 	}
 
-	public boolean runRequest(String cmd, Object obj) {
+	public boolean runInternalRequest(String cmd, Object obj) {
 		String identity;
+		String roomId;
 		boolean ret = false;
 
 		switch (cmd) {
@@ -93,9 +91,18 @@ public class CoordinateListener extends Connector implements Runnable {
 			identity = (String) obj;
 			broadcastReleaseIdentity(identity);
 			break;
+		case Command.CMD_LOCK_ROOM:
+			roomId = (String) obj;
+			ret = broadcastLockRoomId(roomId);
+			break;
 		default:
 		}
 		return ret;
+	}
+
+	//TODO Move to handler
+	private boolean broadcastLockRoomId(String roomId) {
+		return broadcastAndGetResult(chatRoomCmd.lockRoomRq(Configuration.getServerId(), roomId));
 	}
 
 	private void broadcastReleaseIdentity(String identity) {

@@ -1,7 +1,5 @@
 package com.tamfign.connection;
 
-import com.tamfign.configuration.Configuration;
-
 public class ConnectController {
 	private ClientListener clients = null;
 	private CoordinateListener servers = null;
@@ -21,7 +19,7 @@ public class ConnectController {
 	}
 
 	public boolean requestServer(String cmd, Object obj) {
-		return servers.runRequest(cmd, obj);
+		return servers.runInternalRequest(cmd, obj);
 	}
 
 	public boolean requestClient(String cmd, Object obj) {

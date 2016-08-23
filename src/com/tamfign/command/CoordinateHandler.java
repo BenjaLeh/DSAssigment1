@@ -6,6 +6,7 @@ import org.json.simple.JSONObject;
 
 import com.tamfign.configuration.Configuration;
 import com.tamfign.connection.Connector;
+import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.IdentityListController;
 
 public class CoordinateHandler extends Handler {
@@ -25,7 +26,6 @@ public class CoordinateHandler extends Handler {
 		String serverId;
 		String identity;
 		String roomId;
-		String approval;
 
 		switch ((String) obj.get(Command.TYPE)) {
 		case Command.TYPE_LOCK_ID:
@@ -38,8 +38,49 @@ public class CoordinateHandler extends Handler {
 			identity = (String) obj.get(Command.P_IDENTITY);
 			releaseIdIfExists(serverId, identity);
 			break;
+		case Command.TYPE_LOCK_ROOM:
+			serverId = (String) obj.get(Command.P_SERVER_ID);
+			roomId = (String) obj.get(Command.P_ROOM_ID);
+			handleLockRoomRq(serverId, roomId);
+			break;
+		case Command.TYPE_RELEASE_ROOM:
+			serverId = (String) obj.get(Command.P_SERVER_ID);
+			roomId = (String) obj.get(Command.P_ROOM_ID);
+			releaseRoomIfExists(serverId, roomId);
+			break;
 		default:
 		}
+	}
+
+	private void releaseRoomIfExists(String serverId, String roomId) {
+		if (ChatRoomListController.getInstance().isRoomExists(roomId)) {
+			ChatRoomListController.getInstance().removeRoom(roomId);
+		}
+	}
+
+	private void handleLockRoomRq(String serverId, String roomId) {
+		if (checkLocalChatRoomList(serverId, roomId)) {
+			approveLockRoom(roomId);
+		} else {
+			disapproveLockRoom(roomId);
+		}
+	}
+
+	private void disapproveLockRoom(String roomId) {
+		response(chatRoomCmd.lockRoomRs(Configuration.getServerId(), roomId, false));
+	}
+
+	private void approveLockRoom(String roomId) {
+		response(chatRoomCmd.lockRoomRs(Configuration.getServerId(), roomId, true));
+	}
+
+	private boolean checkLocalChatRoomList(String serverId, String roomId) {
+		boolean ret = false;
+		if (!ChatRoomListController.getInstance().isRoomExists(roomId)) {
+			ChatRoomListController.getInstance().addRoom(roomId, serverId, null);
+			ret = true;
+		}
+		return ret;
 	}
 
 	private void handleLockIdRq(String serverId, String identity) {
@@ -67,8 +108,8 @@ public class CoordinateHandler extends Handler {
 	private boolean checkLocalIdentityList(String serverId, String identity) {
 		boolean ret = false;
 		if (!IdentityListController.getInstance().isIdentityExist(identity)) {
-			ret = true;
 			IdentityListController.getInstance().addIndentity(serverId, identity);
+			ret = true;
 		}
 		return ret;
 	}

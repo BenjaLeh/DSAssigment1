@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.json.simple.JSONObject;
@@ -13,6 +14,7 @@ import org.json.simple.parser.ParseException;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.connection.ClientListener;
 import com.tamfign.connection.ConnectController;
+import com.tamfign.model.ChatRoom;
 import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.IdentityListController;
 import com.tamfign.model.ServerConfig;
@@ -59,12 +61,16 @@ public class ClientHandler extends Handler {
 		case Command.TYPE_LIST:
 			sendRoomList();
 			break;
+		case Command.TYPE_WHO:
+			sendMemberList();
+			break;
 		case Command.TYPE_CREATE_ROOM:
 			roomId = (String) root.get(Command.P_ROOM_ID);
 			if (lockRoomId(roomId)) {
+				String currentRoomId = ChatRoomListController.getInstance().getRoomByMember(thisClientId).getName();
 				createChatRoom(roomId);
 				approveChatRoom(roomId);
-				broadcastRoomChange(id, former, roomId);
+				broadcastRoomChange(thisClientId, currentRoomId, roomId);
 			} else {
 				disapproveChatRoom(roomId);
 			}
@@ -93,6 +99,11 @@ public class ClientHandler extends Handler {
 			break;
 		default:
 		}
+	}
+
+	private void sendMemberList() {
+		ChatRoom room = ChatRoomListController.getInstance().getRoomByMember(this.thisClientId);
+		response(chatRoomCmd.whoRs(room.getName(), room.getMemberList(), room.getOwner()));
 	}
 
 	private void sendRoomChange() {
@@ -158,30 +169,29 @@ public class ClientHandler extends Handler {
 	}
 
 	private void disapproveChatRoom(String roomId) {
-		String cmd = chatRoomCmd.createRoomRs(roomId, false);
+		response(chatRoomCmd.createRoomRs(roomId, false));
 	}
 
 	private void approveChatRoom(String roomId) {
-		String cmd = chatRoomCmd.createRoomRs(roomId, false);
+		response(chatRoomCmd.createRoomRs(roomId, true));
 	}
 
 	private void createChatRoom(String roomId) {
-		// TODO Auto-generated method stub
-
+		ChatRoomListController.getInstance().addRoom(roomId, Configuration.getServerId(), thisClientId);
 	}
 
 	private boolean lockRoomId(String roomId) {
-		// TODO Auto-generated method stub
-		releaseRoomId(roomId, false);
+		boolean ret = getConnector().requestTheOther(Command.CMD_LOCK_ROOM, roomId);
+		releaseRoomId(roomId, ret);
 		return false;
 	}
 
 	private void releaseRoomId(String roomId, boolean result) {
-		String cmd = chatRoomCmd.releaseRoom(Configuration.getServerId(), roomId, result);
+		getConnector().broadcast(chatRoomCmd.releaseRoom(Configuration.getServerId(), roomId, result));
 	}
 
 	private void sendRoomList() {
-		String cmd = chatRoomCmd.listRs(ChatRoomListController.getInstance().getList());
+		response(chatRoomCmd.listRs(ChatRoomListController.getInstance().getList()));
 	}
 
 	private void disapproveIdentity(String id) {
@@ -197,7 +207,7 @@ public class ClientHandler extends Handler {
 	}
 
 	private void broadcastRoomChange(String id, String former, String newRoom) {
-		String cmd = chatRoomCmd.roomChangeRq(id, former, newRoom);
+		((ClientListener) getConnector()).broadcastWithinRoom(former, chatRoomCmd.roomChangeRq(id, former, newRoom));
 	}
 
 	private void createIdentity(String identity) {
