@@ -40,6 +40,10 @@ public abstract class Connector {
 		localSocketsList.put(id, socket);
 	}
 
+	public void terminateSocket(String id) {
+		localSocketsList.remove(id);
+	}
+
 	protected Iterator<Entry<String, Socket>> getLocalSocketListIt() {
 		return this.localSocketsList.entrySet().iterator();
 	}

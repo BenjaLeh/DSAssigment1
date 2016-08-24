@@ -40,8 +40,9 @@ public class ClientHandler extends Handler {
 		case Command.TYPE_QUIT:
 			removeFromClientList();
 			if (isOwnerOfRoom()) {
-				sendRoomChange();
+				deleteRoomAndBroadcastRoomChange();
 			}
+			responseChangeRoomAndTerminate();
 			break;
 		case Command.TYPE_NEW_ID:
 			id = (String) root.get(Command.P_IDENTITY);
@@ -105,6 +106,11 @@ public class ClientHandler extends Handler {
 		}
 	}
 
+	private void responseChangeRoomAndTerminate() {
+		response(chatRoomCmd.roomChangeRq(thisClientId, "", ""));
+		terminate();
+	}
+
 	private void handlerMoveJoin(String id, String formerRoom, String roomId) {
 		String newRoom = null;
 		if (ChatRoomListController.getInstance().isRoomExists(roomId)) {
@@ -126,13 +132,19 @@ public class ClientHandler extends Handler {
 		return ClientListController.getInstance().getClient(thisClientId).getRoomId();
 	}
 
-	private void sendRoomChange() {
-		// TODO Auto-generated method stub
-
+	private void deleteRoomAndBroadcastRoomChange() {
+		String roomId = ClientListController.getInstance().getClient(thisClientId).getOwnRoom();
+		if (isRoomCanBeDel(roomId)) {
+			ArrayList<String> currentMemberList = ChatRoomListController.getInstance().getChatRoom(roomId)
+					.getMemberList();
+			currentMemberList.remove(this.thisClientId);
+			deleteRoom(roomId);
+			broadcastDeleteRoom(roomId, currentMemberList);
+		}
 	}
 
 	private boolean isOwnerOfRoom() {
-		return ClientListController.getInstance().getClient(thisClientId).getOwnRoom() == null;
+		return ClientListController.getInstance().getClient(thisClientId).getOwnRoom() != null;
 	}
 
 	private void removeFromClientList() {
@@ -187,7 +199,12 @@ public class ClientHandler extends Handler {
 		removeFromClientList();
 		((ClientListener) getConnector()).broadcastWithinRoom(formerRoom, null,
 				chatRoomCmd.roomChangeRq(thisClientId, formerRoom, roomId));
-		terminate();// Will close socket and terminal this thread.
+		terminate();
+	}
+
+	private void terminate() {
+		terminate(thisClientId);// Will close socket and terminal this thread.
+		thisClientId = null;
 	}
 
 	private ServerConfig getServer(String roomId) {
@@ -213,7 +230,7 @@ public class ClientHandler extends Handler {
 		boolean ret = false;
 
 		if (ChatRoomListController.getInstance().isRoomExists(roomId)) {
-			if (isOwnerOfRoom()) {
+			if (!isOwnerOfRoom()) {
 				ret = true;
 			}
 		}

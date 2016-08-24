@@ -36,7 +36,7 @@ public abstract class Handler implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			terminate();
+			close();
 		}
 	}
 
@@ -48,7 +48,7 @@ public abstract class Handler implements Runnable {
 		connetor.certainSocket(id, socket);
 	}
 
-	protected void terminate() {
+	protected void close() {
 		if (socket != null) {
 			try {
 				socket.close();
@@ -56,6 +56,11 @@ public abstract class Handler implements Runnable {
 				// TODO Auto-generated catch block
 			}
 		}
+	}
+
+	protected void terminate(String id) {
+		close();
+		connetor.terminateSocket(id);
 	}
 
 	protected void response(String cmd) {
