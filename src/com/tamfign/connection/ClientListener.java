@@ -3,7 +3,6 @@ package com.tamfign.connection;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -49,11 +48,19 @@ public class ClientListener extends Connector implements Runnable {
 		return getController().requestServer(cmd, obj);
 	}
 
-	public void broadcastWithinRoom(String roomId, String cmd) {
+	// TODO Finetune
+	public void broadcastWithinRoom(String former, String roomId, String cmd) {
 		ArrayList<Socket> list = new ArrayList<Socket>();
-		ArrayList<String> memberList = (ArrayList<String>) ChatRoomListController.getInstance().getMemberList(roomId);
-		Iterator<Entry<String, Socket>> it = getLocalSocketListIt();
+		ArrayList<String> memberList = new ArrayList<String>();
 
+		if (former != null) {
+			memberList.addAll(ChatRoomListController.getInstance().getMemberList(former));
+		}
+		if (roomId != null) {
+			memberList.addAll(ChatRoomListController.getInstance().getMemberList(roomId));
+		}
+
+		Iterator<Entry<String, Socket>> it = getLocalSocketListIt();
 		while (it.hasNext()) {
 			Entry<String, Socket> entry = it.next();
 			for (String identity : memberList) {
@@ -63,10 +70,5 @@ public class ClientListener extends Connector implements Runnable {
 			}
 		}
 		broadcast(list, cmd);
-	}
-
-	public boolean runRequest(String cmd, Object obj) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 }

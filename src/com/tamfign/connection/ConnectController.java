@@ -21,8 +21,4 @@ public class ConnectController {
 	public boolean requestServer(String cmd, Object obj) {
 		return servers.runInternalRequest(cmd, obj);
 	}
-
-	public boolean requestClient(String cmd, Object obj) {
-		return clients.runRequest(cmd, obj);
-	}
 }

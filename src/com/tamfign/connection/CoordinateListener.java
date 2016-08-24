@@ -80,6 +80,7 @@ public class CoordinateListener extends Connector implements Runnable {
 	public boolean runInternalRequest(String cmd, Object obj) {
 		String identity;
 		String roomId;
+		String message;
 		boolean ret = false;
 
 		switch (cmd) {
@@ -95,12 +96,28 @@ public class CoordinateListener extends Connector implements Runnable {
 			roomId = (String) obj;
 			ret = broadcastLockRoomId(roomId);
 			break;
+		case Command.CMD_DELETE_ROOM:
+			roomId = (String) obj;
+			broadcastDeleteRoomId(roomId);
+			break;
+		case Command.CMD_RELEASE_ROOM:
+			message = (String) obj;
+			broadcastReleaseRoomId(message);
+			break;
 		default:
 		}
 		return ret;
 	}
 
-	//TODO Move to handler
+	// TODO Move to handler
+	private void broadcastReleaseRoomId(String cmd) {
+		broadcast(cmd);
+	}
+
+	private void broadcastDeleteRoomId(String roomId) {
+		broadcast(chatRoomCmd.deleteRoomBc(Configuration.getServerId(), roomId));
+	}
+
 	private boolean broadcastLockRoomId(String roomId) {
 		return broadcastAndGetResult(chatRoomCmd.lockRoomRq(Configuration.getServerId(), roomId));
 	}
@@ -115,6 +132,6 @@ public class CoordinateListener extends Connector implements Runnable {
 
 	@Override
 	public boolean requestTheOther(String cmd, Object obj) {
-		return getController().requestClient(cmd, obj);
+		return false;
 	}
 }

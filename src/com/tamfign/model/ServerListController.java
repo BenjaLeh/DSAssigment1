@@ -30,6 +30,17 @@ public class ServerListController {
 		return serverList.get(index);
 	}
 
+	public ServerConfig get(String serverId) {
+		ServerConfig ret = null;
+		for (ServerConfig config : serverList) {
+			if (serverId != null && serverId.equals(config.getId())) {
+				ret = config;
+				break;
+			}
+		}
+		return ret;
+	}
+
 	public boolean isAllServerOn() {
 		synchronized (this) {
 			if (!isAllServerActivated) {

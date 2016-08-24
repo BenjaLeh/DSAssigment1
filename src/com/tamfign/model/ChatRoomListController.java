@@ -2,9 +2,7 @@ package com.tamfign.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import com.tamfign.configuration.Configuration;
 
@@ -27,7 +25,23 @@ public class ChatRoomListController {
 
 	public void addRoom(String roomId, String serverId, String owner) {
 		synchronized (this) {
-			roomList.put(roomId, new ChatRoom(roomId, serverId, owner));
+			ChatRoom newRoom = new ChatRoom(roomId, serverId, owner);
+			newRoom.addMember(owner);
+			roomList.put(roomId, newRoom);
+		}
+	}
+
+	public void changeRoom(String former, String newRoom, String identity) {
+		synchronized (this) {
+			roomList.get(former).removeMember(identity);
+			roomList.get(newRoom).addMember(identity);
+		}
+	}
+
+	public void deleteRoom(String roomId) {
+		synchronized (this) {
+			roomList.get(getMainHall()).addMembers(roomList.get(roomId).getMemberList());
+			roomList.remove(roomId);
 		}
 	}
 
@@ -51,29 +65,19 @@ public class ChatRoomListController {
 		}
 	}
 
+	public ChatRoom getChatRoom(String roomId) {
+		synchronized (this) {
+			return roomList.get(roomId);
+		}
+	}
+
 	public List<String> getMemberList(String roomId) {
 		synchronized (this) {
 			return roomList.get(roomId).getMemberList();
 		}
 	}
 
-	public String getMainHall() {
+	public static String getMainHall() {
 		return MAIN_HALL + Configuration.getServerId();
-	}
-
-	public ChatRoom getRoomByMember(String identity) {
-		synchronized (this) {
-			Iterator<Entry<String, ChatRoom>> it = roomList.entrySet().iterator();
-
-			while (it.hasNext()) {
-				Entry<String, ChatRoom> entry = it.next();
-				for (String member : entry.getValue().getMemberList()) {
-					if (member != null && member.equals(identity)) {
-						return entry.getValue();
-					}
-				}
-			}
-			return null;
-		}
 	}
 }

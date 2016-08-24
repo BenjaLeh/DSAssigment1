@@ -7,18 +7,16 @@ import org.json.simple.JSONObject;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.connection.Connector;
 import com.tamfign.model.ChatRoomListController;
-import com.tamfign.model.IdentityListController;
+import com.tamfign.model.ClientListController;
 
 public class CoordinateHandler extends Handler {
 	private ChatRoomCmd chatRoomCmd = null;
 	private IdentityCmd identityCmd = null;
-	private MessageCmd messageCmd = null;
 
 	public CoordinateHandler(Connector connetor, Socket socket) {
 		super(connetor, socket);
 		chatRoomCmd = new ChatRoomCmd();
 		identityCmd = new IdentityCmd();
-		messageCmd = new MessageCmd();
 	}
 
 	@Override
@@ -26,6 +24,7 @@ public class CoordinateHandler extends Handler {
 		String serverId;
 		String identity;
 		String roomId;
+		boolean approved;
 
 		switch ((String) obj.get(Command.TYPE)) {
 		case Command.TYPE_LOCK_ID:
@@ -46,15 +45,18 @@ public class CoordinateHandler extends Handler {
 		case Command.TYPE_RELEASE_ROOM:
 			serverId = (String) obj.get(Command.P_SERVER_ID);
 			roomId = (String) obj.get(Command.P_ROOM_ID);
-			releaseRoomIfExists(serverId, roomId);
+			approved = Boolean.parseBoolean((String) obj.get(Command.P_APPROVED));
+			releaseRoomIfExists(serverId, roomId, approved);
 			break;
 		default:
 		}
 	}
 
-	private void releaseRoomIfExists(String serverId, String roomId) {
+	private void releaseRoomIfExists(String serverId, String roomId, boolean approved) {
 		if (ChatRoomListController.getInstance().isRoomExists(roomId)) {
-			ChatRoomListController.getInstance().removeRoom(roomId);
+			if (!approved) {
+				ChatRoomListController.getInstance().removeRoom(roomId);
+			}
 		}
 	}
 
@@ -92,8 +94,8 @@ public class CoordinateHandler extends Handler {
 	}
 
 	private void releaseIdIfExists(String serverId, String identity) {
-		if (IdentityListController.getInstance().isIdentityExist(identity)) {
-			IdentityListController.getInstance().releaseId(serverId, identity);
+		if (ClientListController.getInstance().isIdentityExist(identity)) {
+			ClientListController.getInstance().releaseId(serverId, identity);
 		}
 	}
 
@@ -107,8 +109,8 @@ public class CoordinateHandler extends Handler {
 
 	private boolean checkLocalIdentityList(String serverId, String identity) {
 		boolean ret = false;
-		if (!IdentityListController.getInstance().isIdentityExist(identity)) {
-			IdentityListController.getInstance().addIndentity(serverId, identity);
+		if (!ClientListController.getInstance().isIdentityExist(identity)) {
+			ClientListController.getInstance().addIndentity(identity, serverId, null);
 			ret = true;
 		}
 		return ret;

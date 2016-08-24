@@ -44,6 +44,7 @@ public class Command {
 	public final static String CMD_RELEASE_IDENTITY = "CMD_RELEASE_IDENTITY";
 	public final static String CMD_LOCK_ROOM = "CMD_LOCK_ROOM";
 	public final static String CMD_RELEASE_ROOM = "CMD_RELEASE_ROOM";
+	public final static String CMD_DELETE_ROOM = "CMD_DELETE_ROOM";
 
 	public String marshal(JSONObject root) {
 		return null;// TODO

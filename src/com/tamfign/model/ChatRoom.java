@@ -31,6 +31,10 @@ public class ChatRoom {
 		this.members.add(identity);
 	}
 
+	public void addMembers(ArrayList<String> members) {
+		this.members.addAll(members);
+	}
+
 	public void removeMember(String identity) {
 		this.members.remove(identity);
 	}
