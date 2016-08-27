@@ -1,11 +1,8 @@
 package com.tamfign.command;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 public class Command {
 	protected final static String TYPE = "type";
+	protected final static String CMD = "cmd";
 	protected final static String TYPE_NEW_ID = "newidentity";
 	protected final static String TYPE_LOCK_ID = "lockidenity";
 	protected final static String TYPE_RELEASE_ID = "releaseidentity";
@@ -45,12 +42,4 @@ public class Command {
 	public final static String CMD_LOCK_ROOM = "CMD_LOCK_ROOM";
 	public final static String CMD_RELEASE_ROOM = "CMD_RELEASE_ROOM";
 	public final static String CMD_DELETE_ROOM = "CMD_DELETE_ROOM";
-
-	public String marshal(JSONObject root) {
-		return null;// TODO
-	}
-
-	public JSONObject unmarshal(String cmd) throws ParseException {
-		return (JSONObject) new JSONParser().parse(cmd);
-	}
 }

@@ -6,15 +6,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.json.simple.JSONObject;
+
 import com.tamfign.command.ClientHandler;
-import com.tamfign.command.Handler;
+import com.tamfign.command.ExternalHandler;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ServerListController;
 
-public class ClientListener extends Connector implements Runnable {
+public class ClientConnector extends Connector implements Runnable {
 
-	protected ClientListener(ConnectController controller) {
+	protected ClientConnector(ConnectController controller) {
 		super(controller);
 	}
 
@@ -39,13 +41,13 @@ public class ClientListener extends Connector implements Runnable {
 	}
 
 	@Override
-	protected Handler getHandler(Socket socket) {
+	protected ExternalHandler getHandler(Socket socket) {
 		return new ClientHandler(this, socket);
 	}
 
 	@Override
-	public boolean requestTheOther(String cmd, Object obj) {
-		return getController().requestServer(cmd, obj);
+	public boolean requestTheOther(JSONObject obj) {
+		return getController().requestServer(obj);
 	}
 
 	// TODO Finetune

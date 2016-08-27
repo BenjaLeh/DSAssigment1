@@ -1,12 +1,14 @@
 package com.tamfign.connection;
 
+import org.json.simple.JSONObject;
+
 public class ConnectController {
-	private ClientListener clients = null;
-	private CoordinateListener servers = null;
+	private ClientConnector clients = null;
+	private CoordinateConnector servers = null;
 
 	private ConnectController() {
-		this.clients = new ClientListener(this);
-		this.servers = new CoordinateListener(this);
+		this.clients = new ClientConnector(this);
+		this.servers = new CoordinateConnector(this);
 	}
 
 	public static ConnectController getInstance() {
@@ -18,7 +20,7 @@ public class ConnectController {
 		new Thread(this.clients).start();
 	}
 
-	public boolean requestServer(String cmd, Object obj) {
-		return servers.runInternalRequest(cmd, obj);
+	public boolean requestServer(JSONObject obj) {
+		return servers.runInternalRequest(obj);
 	}
 }

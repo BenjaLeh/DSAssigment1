@@ -9,18 +9,16 @@ import com.tamfign.connection.Connector;
 import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ClientListController;
 
-public class CoordinateHandler extends Handler {
-	private ChatRoomCmd chatRoomCmd = null;
-	private IdentityCmd identityCmd = null;
+public class CoordinateHandler extends ExternalHandler {
+	private ServerServerCmd command = null;
 
 	public CoordinateHandler(Connector connetor, Socket socket) {
 		super(connetor, socket);
-		chatRoomCmd = new ChatRoomCmd();
-		identityCmd = new IdentityCmd();
+		this.command = new ServerServerCmd();
 	}
 
 	@Override
-	protected void cmdAnalysis(JSONObject obj) {
+	public void cmdAnalysis(JSONObject obj) {
 		String serverId;
 		String identity;
 		String roomId;
@@ -69,11 +67,11 @@ public class CoordinateHandler extends Handler {
 	}
 
 	private void disapproveLockRoom(String roomId) {
-		response(chatRoomCmd.lockRoomRs(Configuration.getServerId(), roomId, false));
+		response(command.lockRoomRs(Configuration.getServerId(), roomId, false));
 	}
 
 	private void approveLockRoom(String roomId) {
-		response(chatRoomCmd.lockRoomRs(Configuration.getServerId(), roomId, true));
+		response(command.lockRoomRs(Configuration.getServerId(), roomId, true));
 	}
 
 	private boolean checkLocalChatRoomList(String serverId, String roomId) {
@@ -100,11 +98,11 @@ public class CoordinateHandler extends Handler {
 	}
 
 	private void disapproveLockId(String identity) {
-		response(identityCmd.lockIdentityRs(Configuration.getServerId(), identity, false));
+		response(command.lockIdentityRs(Configuration.getServerId(), identity, false));
 	}
 
 	private void approveLockId(String identity) {
-		response(identityCmd.lockIdentityRs(Configuration.getServerId(), identity, true));
+		response(command.lockIdentityRs(Configuration.getServerId(), identity, true));
 	}
 
 	private boolean checkLocalIdentityList(String serverId, String identity) {

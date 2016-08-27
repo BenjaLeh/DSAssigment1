@@ -17,10 +17,10 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.tamfign.command.Command;
-import com.tamfign.command.Handler;
+import com.tamfign.command.ExternalHandler;
 
 public abstract class Connector {
-	protected abstract Handler getHandler(Socket socket);
+	protected abstract ExternalHandler getHandler(Socket socket);
 
 	private HashMap<String, Socket> localSocketsList = null;
 	private ConnectController controller = null;
@@ -30,7 +30,7 @@ public abstract class Connector {
 		this.localSocketsList = new HashMap<String, Socket>();
 	}
 
-	public abstract boolean requestTheOther(String cmd, Object obj);
+	public abstract boolean requestTheOther(JSONObject obj);
 
 	protected ConnectController getController() {
 		return this.controller;
@@ -80,7 +80,7 @@ public abstract class Connector {
 		}
 	}
 
-	protected boolean broadcastAndGetResult(String cmd) {
+	public boolean broadcastAndGetResult(String cmd) {
 		boolean ret = false;
 		Iterator<Entry<String, Socket>> it = localSocketsList.entrySet().iterator();
 		while (it.hasNext()) {

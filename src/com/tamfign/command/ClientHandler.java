@@ -6,27 +6,23 @@ import java.util.ArrayList;
 import org.json.simple.JSONObject;
 
 import com.tamfign.configuration.Configuration;
-import com.tamfign.connection.ClientListener;
+import com.tamfign.connection.ClientConnector;
 import com.tamfign.model.ChatRoom;
 import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ClientListController;
 import com.tamfign.model.ServerConfig;
 import com.tamfign.model.ServerListController;
 
-public class ClientHandler extends Handler {
+public class ClientHandler extends ExternalHandler {
 	private String thisClientId = null;
-	private ChatRoomCmd chatRoomCmd = null;
-	private IdentityCmd identityCmd = null;
-	private MessageCmd messageCmd = null;
+	private ClientServerCmd command = null;
 
-	public ClientHandler(ClientListener connector, Socket socket) {
+	public ClientHandler(ClientConnector connector, Socket socket) {
 		super(connector, socket);
-		chatRoomCmd = new ChatRoomCmd();
-		identityCmd = new IdentityCmd();
-		messageCmd = new MessageCmd();
+		this.command = new ClientServerCmd();
 	}
 
-	protected void cmdAnalysis(JSONObject root) {
+	public void cmdAnalysis(JSONObject root) {
 		String id;
 		String roomId;
 		String content;
@@ -107,7 +103,7 @@ public class ClientHandler extends Handler {
 	}
 
 	private void responseChangeRoomAndTerminate() {
-		response(chatRoomCmd.roomChangeRq(thisClientId, "", ""));
+		response(command.roomChangeRq(thisClientId, "", ""));
 		terminate();
 	}
 
@@ -119,13 +115,13 @@ public class ClientHandler extends Handler {
 			newRoom = ChatRoomListController.getMainHall();
 		}
 		createIdentity(id, newRoom);
-		((ClientListener) getConnector()).broadcastWithinRoom(null, newRoom,
-				chatRoomCmd.roomChangeRq(thisClientId, formerRoom, newRoom));
+		((ClientConnector) getConnector()).broadcastWithinRoom(null, newRoom,
+				command.roomChangeRq(thisClientId, formerRoom, newRoom));
 	}
 
 	private void sendMemberList() {
 		ChatRoom room = ChatRoomListController.getInstance().getChatRoom(getCurrentRoomId());
-		response(chatRoomCmd.whoRs(room.getName(), room.getMemberList(), room.getOwner()));
+		response(command.whoRs(room.getName(), room.getMemberList(), room.getOwner()));
 	}
 
 	private String getCurrentRoomId() {
@@ -153,17 +149,17 @@ public class ClientHandler extends Handler {
 	}
 
 	private void broadCastMessage(String content) {
-		((ClientListener) getConnector()).broadcastWithinRoom(null, getCurrentRoomId(),
-				messageCmd.messageCmd(this.thisClientId, content));
+		((ClientConnector) getConnector()).broadcastWithinRoom(null, getCurrentRoomId(),
+				command.messageCmd(this.thisClientId, content));
 	}
 
 	private void broadcastDeleteRoom(String roomId, ArrayList<String> currentMemberList) {
-		getConnector().requestTheOther(Command.CMD_DELETE_ROOM, roomId);
+		getConnector().requestTheOther(getInternRoomCmdObject(Command.CMD_DELETE_ROOM, roomId));
 
 		// TODO need to be well tested
 		for (String id : currentMemberList) {
-			((ClientListener) getConnector()).broadcastWithinRoom(null, ChatRoomListController.getMainHall(),
-					chatRoomCmd.roomChangeRq(id, roomId, ChatRoomListController.getMainHall()));
+			((ClientConnector) getConnector()).broadcastWithinRoom(null, ChatRoomListController.getMainHall(),
+					command.roomChangeRq(id, roomId, ChatRoomListController.getMainHall()));
 		}
 	}
 
@@ -176,11 +172,11 @@ public class ClientHandler extends Handler {
 	}
 
 	private void disapproveDeleteRoom(String roomId) {
-		response(chatRoomCmd.deleteRoomRs(roomId, false));
+		response(command.deleteRoomRs(roomId, false));
 	}
 
 	private void approveDeleteRoom(String roomId) {
-		response(chatRoomCmd.deleteRoomRs(roomId, true));
+		response(command.deleteRoomRs(roomId, true));
 	}
 
 	private boolean isRoomCanBeDel(String roomId) {
@@ -195,10 +191,10 @@ public class ClientHandler extends Handler {
 
 	private void routeClient(String roomId, ServerConfig server) {
 		String formerRoom = getCurrentRoomId();
-		response(chatRoomCmd.routeRq(roomId, server.getHost(), server.getClientPort()));
+		response(command.routeRq(roomId, server.getHost(), server.getClientPort()));
 		removeFromClientList();
-		((ClientListener) getConnector()).broadcastWithinRoom(formerRoom, null,
-				chatRoomCmd.roomChangeRq(thisClientId, formerRoom, roomId));
+		((ClientConnector) getConnector()).broadcastWithinRoom(formerRoom, null,
+				command.roomChangeRq(thisClientId, formerRoom, roomId));
 		terminate();
 	}
 
@@ -216,7 +212,7 @@ public class ClientHandler extends Handler {
 	}
 
 	private void disapproveJoin(String roomId) {
-		response(chatRoomCmd.roomChangeRq(this.thisClientId, getCurrentRoomId(), getCurrentRoomId()));
+		response(command.roomChangeRq(this.thisClientId, getCurrentRoomId(), getCurrentRoomId()));
 	}
 
 	private void approveJoin(String roomId) {
@@ -238,11 +234,11 @@ public class ClientHandler extends Handler {
 	}
 
 	private void disapproveChatRoom(String roomId) {
-		response(chatRoomCmd.createRoomRs(roomId, false));
+		response(command.createRoomRs(roomId, false));
 	}
 
 	private void approveChatRoom(String roomId) {
-		response(chatRoomCmd.createRoomRs(roomId, true));
+		response(command.createRoomRs(roomId, true));
 	}
 
 	private void createChatRoom(String roomId) {
@@ -251,19 +247,17 @@ public class ClientHandler extends Handler {
 	}
 
 	private boolean lockRoomId(String roomId) {
-		boolean ret = getConnector().requestTheOther(Command.CMD_LOCK_ROOM, roomId);
+		boolean ret = getConnector().requestTheOther(getInternRoomCmdObject(Command.CMD_LOCK_ROOM, roomId));
 		releaseRoomId(roomId, ret);
 		return false;
 	}
 
 	private void releaseRoomId(String roomId, boolean result) {
-		// TODO
-		getConnector().requestTheOther(Command.CMD_RELEASE_ROOM,
-				chatRoomCmd.releaseRoom(Configuration.getServerId(), roomId, result));
+		getConnector().requestTheOther(getInternRoomResultCmdObject(Command.CMD_RELEASE_ROOM, roomId, result));
 	}
 
 	private void sendRoomList() {
-		response(chatRoomCmd.listRs(ChatRoomListController.getInstance().getList()));
+		response(command.listRs(ChatRoomListController.getInstance().getList()));
 	}
 
 	private void disapproveIdentity(String id) {
@@ -271,16 +265,16 @@ public class ClientHandler extends Handler {
 	}
 
 	private void sendDisapproveIdentity(String id) {
-		response(identityCmd.newIdentityRs(id, false));
+		response(command.newIdentityRs(id, false));
 	}
 
 	private void approveIdentity(String id) {
-		response(identityCmd.newIdentityRs(id, true));
+		response(command.newIdentityRs(id, true));
 	}
 
 	private void broadcastRoomChange(String former, String newRoom) {
-		((ClientListener) getConnector()).broadcastWithinRoom(former, newRoom,
-				chatRoomCmd.roomChangeRq(this.thisClientId, former, newRoom));
+		((ClientConnector) getConnector()).broadcastWithinRoom(former, newRoom,
+				command.roomChangeRq(this.thisClientId, former, newRoom));
 	}
 
 	private void createIdentity(String identity, String roomId) {
@@ -290,12 +284,37 @@ public class ClientHandler extends Handler {
 	}
 
 	private boolean lockIdentity(String identity) {
-		boolean ret = getConnector().requestTheOther(Command.CMD_LOCK_IDENTITY, identity);
+		boolean ret = getConnector().requestTheOther(getInternIdCmdObject(Command.CMD_LOCK_IDENTITY, identity));
 		releaseIdentity(identity);
 		return ret;
 	}
 
 	private void releaseIdentity(String identity) {
-		getConnector().requestTheOther(Command.CMD_RELEASE_IDENTITY, identity);
+		getConnector().requestTheOther(getInternIdCmdObject(Command.CMD_RELEASE_IDENTITY, identity));
+	}
+
+	@SuppressWarnings("unchecked")
+	private JSONObject getInternRoomCmdObject(String cmd, String roomId) {
+		JSONObject obj = new JSONObject();
+		obj.put(Command.CMD, cmd);
+		obj.put(Command.P_ROOM_ID, roomId);
+		return obj;
+	}
+
+	@SuppressWarnings("unchecked")
+	private JSONObject getInternRoomResultCmdObject(String cmd, String roomId, boolean result) {
+		JSONObject obj = new JSONObject();
+		obj.put(Command.CMD, cmd);
+		obj.put(Command.P_ROOM_ID, roomId);
+		obj.put(Command.P_APPROVED, result);
+		return obj;
+	}
+
+	@SuppressWarnings("unchecked")
+	private JSONObject getInternIdCmdObject(String cmd, String identity) {
+		JSONObject obj = new JSONObject();
+		obj.put(Command.CMD, cmd);
+		obj.put(Command.P_IDENTITY, identity);
+		return obj;
 	}
 }

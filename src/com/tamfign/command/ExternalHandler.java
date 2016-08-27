@@ -13,11 +13,11 @@ import org.json.simple.parser.ParseException;
 
 import com.tamfign.connection.Connector;
 
-public abstract class Handler implements Runnable {
+public abstract class ExternalHandler implements Runnable {
 	private Socket socket = null;
 	private Connector connetor = null;
 
-	public Handler(Connector connetor, Socket socket) {
+	public ExternalHandler(Connector connetor, Socket socket) {
 		this.connetor = connetor;
 		this.socket = socket;
 	}
