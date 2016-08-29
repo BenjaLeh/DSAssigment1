@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import com.tamfign.main.ServerArguments;
-import com.tamfign.model.ServerConfig;
 import com.tamfign.model.ServerListController;
 
 public class Configuration {
@@ -25,8 +24,13 @@ public class Configuration {
 				server.setItselft(true);
 			}
 			ServerListController.getInstance().addServer(server);
+			configLine = br.readLine();
 		}
 		br.close();
+
+		if (itself == null) {
+			throw new IOException("No matched ServerId");
+		}
 	}
 
 	public static String getServerId() {
@@ -42,7 +46,7 @@ public class Configuration {
 	}
 
 	public static Configuration init(ServerArguments arguments) throws IOException {
-		if (_instance != null) {
+		if (_instance == null) {
 			_instance = new Configuration(arguments);
 		}
 		return _instance;

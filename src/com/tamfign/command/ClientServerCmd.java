@@ -11,7 +11,7 @@ public class ClientServerCmd extends Command {
 	public String newIdentityRs(String identity, boolean result) {
 		JSONObject root = new JSONObject();
 		root.put(TYPE, TYPE_NEW_ID);
-		root.put(P_APPROVED, result);
+		root.put(P_APPROVED, Boolean.toString(result));
 		return root.toJSONString();
 	}
 
@@ -19,7 +19,7 @@ public class ClientServerCmd extends Command {
 		JSONObject root = new JSONObject();
 		root.put(TYPE, TYPE_CREATE_ROOM);
 		root.put(P_ROOM_ID, roomId);
-		root.put(P_APPROVED, result);
+		root.put(P_APPROVED, Boolean.toString(result));
 		return root.toJSONString();
 	}
 
@@ -27,7 +27,7 @@ public class ClientServerCmd extends Command {
 		JSONObject root = new JSONObject();
 		root.put(TYPE, TYPE_DELETE_ROOM);
 		root.put(P_ROOM_ID, roomId);
-		root.put(P_APPROVED, result);
+		root.put(P_APPROVED, Boolean.toString(result));
 		return root.toJSONString();
 	}
 
@@ -44,7 +44,7 @@ public class ClientServerCmd extends Command {
 	public String serverChangeBc(boolean result, String serverId) {
 		JSONObject root = new JSONObject();
 		root.put(TYPE, TYPE_SERVER_CHANGE);
-		root.put(P_APPROVED, result);
+		root.put(P_APPROVED, Boolean.toString(result));
 		root.put(P_SERVER_ID, serverId);
 		return root.toJSONString();
 	}

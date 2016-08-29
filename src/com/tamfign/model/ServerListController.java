@@ -2,6 +2,8 @@ package com.tamfign.model;
 
 import java.util.ArrayList;
 
+import com.tamfign.configuration.ServerConfig;
+
 public class ServerListController {
 	private ArrayList<ServerConfig> serverList = null;
 	private static ServerListController _instance = null;

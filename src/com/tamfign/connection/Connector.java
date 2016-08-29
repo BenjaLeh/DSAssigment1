@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -22,12 +23,12 @@ import com.tamfign.command.ExternalHandler;
 public abstract class Connector {
 	protected abstract ExternalHandler getHandler(Socket socket);
 
-	private HashMap<String, Socket> localSocketsList = null;
+	private HashMap<String, Socket> clientSocketsList = null;
 	private ConnectController controller = null;
 
 	protected Connector(ConnectController controller) {
 		this.controller = controller;
-		this.localSocketsList = new HashMap<String, Socket>();
+		this.clientSocketsList = new HashMap<String, Socket>();
 	}
 
 	public abstract boolean requestTheOther(JSONObject obj);
@@ -36,16 +37,16 @@ public abstract class Connector {
 		return this.controller;
 	}
 
-	public void certainSocket(String id, Socket socket) {
-		localSocketsList.put(id, socket);
+	public void addBroadcastList(String id, Socket socket) {
+		clientSocketsList.put(id, socket);
 	}
 
-	public void terminateSocket(String id) {
-		localSocketsList.remove(id);
+	public void removeBroadcastList(String id) {
+		clientSocketsList.remove(id);
 	}
 
 	protected Iterator<Entry<String, Socket>> getLocalSocketListIt() {
-		return this.localSocketsList.entrySet().iterator();
+		return this.clientSocketsList.entrySet().iterator();
 	}
 
 	protected void keepListenPortAndAcceptMultiClient(int port) throws IOException {
@@ -56,8 +57,11 @@ public abstract class Connector {
 				socket = server.accept();
 				Thread handleThread = new Thread(getHandler(socket));
 				handleThread.start();
+				Thread.sleep(1000);
 			}
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			server.close();
@@ -65,7 +69,7 @@ public abstract class Connector {
 	}
 
 	public void broadcast(String cmd) {
-		Iterator<Entry<String, Socket>> it = localSocketsList.entrySet().iterator();
+		Iterator<Entry<String, Socket>> it = clientSocketsList.entrySet().iterator();
 		while (it.hasNext()) {
 			Socket socket = it.next().getValue();
 			write(socket, cmd);
@@ -82,7 +86,7 @@ public abstract class Connector {
 
 	public boolean broadcastAndGetResult(String cmd) {
 		boolean ret = false;
-		Iterator<Entry<String, Socket>> it = localSocketsList.entrySet().iterator();
+		Iterator<Entry<String, Socket>> it = clientSocketsList.entrySet().iterator();
 		while (it.hasNext()) {
 			Socket socket = it.next().getValue();
 			try {
@@ -101,13 +105,12 @@ public abstract class Connector {
 		return ret;
 	}
 
-	private void write(Socket socket, String cmd) {
-		BufferedWriter bw = null;
+	protected void write(Socket socket, String cmd) {
 		try {
+			PrintWriter os = new PrintWriter(socket.getOutputStream());
+			os.println(cmd);
+			os.flush();
 			// TODO Multi-thread?
-			bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			bw.write(cmd);
-			bw.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

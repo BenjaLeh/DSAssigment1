@@ -18,7 +18,7 @@ public class ServerServerCmd extends Command {
 		root.put(TYPE, TYPE_LOCK_ROOM);
 		root.put(P_SERVER_ID, serverId);
 		root.put(P_ROOM_ID, roomId);
-		root.put(P_LOCKED, result);
+		root.put(P_LOCKED, Boolean.toString(result));
 		return root.toJSONString();
 	}
 
@@ -58,7 +58,7 @@ public class ServerServerCmd extends Command {
 		root.put(TYPE, TYPE_RELEASE_ROOM);
 		root.put(P_SERVER_ID, serverId);
 		root.put(P_ROOM_ID, roomId);
-		root.put(P_APPROVED, result);
+		root.put(P_APPROVED, Boolean.toString(result));
 		return root.toJSONString();
 	}
 
@@ -75,7 +75,7 @@ public class ServerServerCmd extends Command {
 		root.put(TYPE, TYPE_LOCK_ID);
 		root.put(P_SERVER_ID, serverId);
 		root.put(P_IDENTITY, identity);
-		root.put(P_LOCKED, result);
+		root.put(P_LOCKED, Boolean.toString(result));
 		return root.toJSONString();
 	}
 

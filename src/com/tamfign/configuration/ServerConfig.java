@@ -1,4 +1,4 @@
-package com.tamfign.model;
+package com.tamfign.configuration;
 
 import java.io.IOException;
 

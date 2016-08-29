@@ -1,10 +1,10 @@
 package com.tamfign.command;
 
 public class Command {
-	protected final static String TYPE = "type";
-	protected final static String CMD = "cmd";
+	public final static String TYPE = "type";
+	public final static String CMD = "cmd";
 	protected final static String TYPE_NEW_ID = "newidentity";
-	protected final static String TYPE_LOCK_ID = "lockidenity";
+	public final static String TYPE_LOCK_ID = "lockidenity";
 	protected final static String TYPE_RELEASE_ID = "releaseidentity";
 	protected final static String TYPE_WHO = "who";
 
@@ -24,9 +24,11 @@ public class Command {
 	protected final static String TYPE_MESSAGE = "message";
 	protected final static String TYPE_QUIT = "quit";
 
+	public final static String TYPE_SERVER_ON = "server_on";
+
 	protected final static String P_IDENTITY = "identity";
-	protected final static String P_SERVER_ID = "serverid";
-	protected final static String P_LOCKED = "locked";
+	public final static String P_SERVER_ID = "serverid";
+	public final static String P_LOCKED = "locked";
 	public final static String P_APPROVED = "approved";
 	protected final static String P_FORMER = "former";
 	protected final static String P_ROOM_ID = "roomid";

@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 import org.json.simple.JSONObject;
@@ -30,7 +31,9 @@ public abstract class ExternalHandler implements Runnable {
 			br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			while (socket.isConnected()) {
 				cmd = br.readLine();
-				cmdAnalyse(cmd);
+				if (cmd != null && !"".equals(cmd)) {
+					cmdAnalyse(cmd);
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -44,8 +47,9 @@ public abstract class ExternalHandler implements Runnable {
 		return this.connetor;
 	}
 
-	protected void certainSocket(String id) {
-		connetor.certainSocket(id, socket);
+	//TODO refractory
+	protected void certainClientSocket(String id) {
+		connetor.addBroadcastList(id, socket);
 	}
 
 	protected void close() {
@@ -60,13 +64,15 @@ public abstract class ExternalHandler implements Runnable {
 
 	protected void terminate(String id) {
 		close();
-		connetor.terminateSocket(id);
+		connetor.removeBroadcastList(id);
 	}
 
 	protected void response(String cmd) {
 		try {
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			bw.write(cmd);
+			System.out.println("Response :" + cmd);
+			PrintWriter os = new PrintWriter(socket.getOutputStream());
+			os.println(cmd);
+			os.flush();//TODO refractory
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,6 +81,7 @@ public abstract class ExternalHandler implements Runnable {
 
 	private void cmdAnalyse(String cmd) {
 		try {
+			System.out.println(cmd);
 			cmdAnalysis((JSONObject) new JSONParser().parse(cmd));
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block

@@ -19,38 +19,32 @@ public class CoordinateHandler extends ExternalHandler {
 
 	@Override
 	public void cmdAnalysis(JSONObject obj) {
-		String serverId;
-		String identity;
-		String roomId;
-		boolean approved;
-
 		switch ((String) obj.get(Command.TYPE)) {
+		case Command.TYPE_SERVER_ON:
+			handleServerOn((String) obj.get(Command.P_SERVER_ID));
+			break;
 		case Command.TYPE_LOCK_ID:
-			serverId = (String) obj.get(Command.P_SERVER_ID);
-			identity = (String) obj.get(Command.P_IDENTITY);
-			handleLockIdRq(serverId, identity);
+			handleLockId((String) obj.get(Command.P_SERVER_ID), (String) obj.get(Command.P_IDENTITY));
 			break;
 		case Command.TYPE_RELEASE_ID:
-			serverId = (String) obj.get(Command.P_SERVER_ID);
-			identity = (String) obj.get(Command.P_IDENTITY);
-			releaseIdIfExists(serverId, identity);
+			handleReleaseId((String) obj.get(Command.P_IDENTITY), (String) obj.get(Command.P_SERVER_ID));
 			break;
 		case Command.TYPE_LOCK_ROOM:
-			serverId = (String) obj.get(Command.P_SERVER_ID);
-			roomId = (String) obj.get(Command.P_ROOM_ID);
-			handleLockRoomRq(serverId, roomId);
+			handleLockRoom((String) obj.get(Command.P_SERVER_ID), (String) obj.get(Command.P_ROOM_ID));
 			break;
 		case Command.TYPE_RELEASE_ROOM:
-			serverId = (String) obj.get(Command.P_SERVER_ID);
-			roomId = (String) obj.get(Command.P_ROOM_ID);
-			approved = Boolean.parseBoolean((String) obj.get(Command.P_APPROVED));
-			releaseRoomIfExists(serverId, roomId, approved);
+			handleReleaseRoom((String) obj.get(Command.P_SERVER_ID), (String) obj.get(Command.P_ROOM_ID),
+					Boolean.parseBoolean((String) obj.get(Command.P_APPROVED)));
 			break;
 		default:
 		}
 	}
 
-	private void releaseRoomIfExists(String serverId, String roomId, boolean approved) {
+	protected void handleServerOn(String serverId) {
+		getConnector().addBroadcastList(serverId, null);
+	}
+
+	private void handleReleaseRoom(String serverId, String roomId, boolean approved) {
 		if (ChatRoomListController.getInstance().isRoomExists(roomId)) {
 			if (!approved) {
 				ChatRoomListController.getInstance().removeRoom(roomId);
@@ -58,7 +52,7 @@ public class CoordinateHandler extends ExternalHandler {
 		}
 	}
 
-	private void handleLockRoomRq(String serverId, String roomId) {
+	private void handleLockRoom(String serverId, String roomId) {
 		if (checkLocalChatRoomList(serverId, roomId)) {
 			approveLockRoom(roomId);
 		} else {
@@ -83,7 +77,7 @@ public class CoordinateHandler extends ExternalHandler {
 		return ret;
 	}
 
-	private void handleLockIdRq(String serverId, String identity) {
+	private void handleLockId(String serverId, String identity) {
 		if (checkLocalIdentityList(serverId, identity)) {
 			approveLockId(identity);
 		} else {
@@ -91,7 +85,7 @@ public class CoordinateHandler extends ExternalHandler {
 		}
 	}
 
-	private void releaseIdIfExists(String serverId, String identity) {
+	private void handleReleaseId(String serverId, String identity) {
 		if (ClientListController.getInstance().isIdentityExist(identity)) {
 			ClientListController.getInstance().releaseId(serverId, identity);
 		}

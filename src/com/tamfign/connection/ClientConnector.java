@@ -24,12 +24,13 @@ public class ClientConnector extends Connector implements Runnable {
 		while (true) {
 			if (!ServerListController.getInstance().isAllServerOn()) {
 				try {
-					Thread.sleep(10000);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					break;
 				}
 			} else {
+				System.out.println("All Servers On");
 				try {
 					keepListenPortAndAcceptMultiClient(Configuration.getClientPort());
 				} catch (IOException e) {
