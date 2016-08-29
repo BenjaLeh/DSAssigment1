@@ -61,6 +61,15 @@ public class CoordinateConnector extends Connector implements Runnable {
 		return ret;
 	}
 
+	@Override
+	public void broadcast(String cmd) {
+		Iterator<Entry<String, Socket>> it = broadcastList.entrySet().iterator();
+		while (it.hasNext()) {
+			Socket socket = it.next().getValue();
+			write(socket, cmd);
+		}
+	}
+
 	private boolean getResult(JSONObject obj) {
 		boolean ret = false;
 

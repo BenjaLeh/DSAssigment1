@@ -27,7 +27,7 @@ public class CoordinateHandler extends ExternalHandler {
 			handleLockId((String) obj.get(Command.P_SERVER_ID), (String) obj.get(Command.P_IDENTITY));
 			break;
 		case Command.TYPE_RELEASE_ID:
-			handleReleaseId((String) obj.get(Command.P_IDENTITY), (String) obj.get(Command.P_SERVER_ID));
+			handleReleaseId((String) obj.get(Command.P_SERVER_ID), (String) obj.get(Command.P_IDENTITY));
 			break;
 		case Command.TYPE_LOCK_ROOM:
 			handleLockRoom((String) obj.get(Command.P_SERVER_ID), (String) obj.get(Command.P_ROOM_ID));
