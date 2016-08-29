@@ -39,7 +39,7 @@ public class InternalHandler {
 			break;
 		case Command.CMD_RELEASE_ROOM:
 			roomId = (String) obj.get(Command.P_ROOM_ID);
-			approve = Boolean.getBoolean((String) obj.get(Command.P_APPROVED));
+			approve = (boolean) obj.get(Command.P_APPROVED);
 			broadcastReleaseRoomId(roomId, approve);
 			break;
 		default:

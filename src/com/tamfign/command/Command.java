@@ -13,8 +13,8 @@ public class Command {
 	protected final static String TYPE_CHANGE_ROOM = "roomchange";
 	protected final static String TYPE_ROOM_CONTENTS = "roomcontents";
 	protected final static String TYPE_CREATE_ROOM = "createroom";
-	protected final static String TYPE_LOCK_ROOM = "lockroomid";
-	protected final static String TYPE_RELEASE_ROOM = "roomchange";
+	public final static String TYPE_LOCK_ROOM = "lockroomid";
+	protected final static String TYPE_RELEASE_ROOM = "releaseroomid";
 	protected final static String TYPE_JOIN = "join";
 	protected final static String TYPE_DELETE_ROOM = "deleteroom";
 	protected final static String TYPE_ROUTE = "route";

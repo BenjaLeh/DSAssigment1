@@ -88,7 +88,7 @@ public class ClientServerCmd extends Command {
 		root.put(TYPE, TYPE_ROUTE);
 		root.put(P_ROOM_ID, roomId);
 		root.put(P_HOST, host);
-		root.put(P_PORT, port);
+		root.put(P_PORT, String.valueOf(port));
 		return root.toJSONString();
 	}
 }

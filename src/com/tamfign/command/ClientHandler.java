@@ -252,13 +252,16 @@ public class ClientHandler extends ExternalHandler {
 
 	private void createChatRoom(String roomId) {
 		ChatRoomListController.getInstance().addRoom(roomId, Configuration.getServerId(), thisClientId);
+		ChatRoomListController.getInstance()
+				.getChatRoom(ClientListController.getInstance().getClient(thisClientId).getRoomId())
+				.removeMember(thisClientId);
 		ClientListController.getInstance().getClient(thisClientId).setRoomId(roomId);
 	}
 
 	private boolean lockRoomId(String roomId) {
 		boolean ret = getConnector().requestTheOther(getInternRoomCmdObject(Command.CMD_LOCK_ROOM, roomId));
 		releaseRoomId(roomId, ret);
-		return false;
+		return ret;
 	}
 
 	private void releaseRoomId(String roomId, boolean result) {

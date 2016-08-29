@@ -36,8 +36,15 @@ public class CoordinateHandler extends ExternalHandler {
 			handleReleaseRoom((String) obj.get(Command.P_SERVER_ID), (String) obj.get(Command.P_ROOM_ID),
 					Boolean.parseBoolean((String) obj.get(Command.P_APPROVED)));
 			break;
+		case Command.TYPE_DELETE_ROOM:
+			handleDeleteRoom((String) obj.get(Command.P_SERVER_ID), (String) obj.get(Command.P_ROOM_ID));
+			break;
 		default:
 		}
+	}
+
+	private void handleDeleteRoom(String serverId, String roomId) {
+		ChatRoomListController.getInstance().deleteRoom(roomId);
 	}
 
 	protected void handleServerOn(String serverId) {

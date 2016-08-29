@@ -75,6 +75,7 @@ public class CoordinateConnector extends Connector implements Runnable {
 
 		switch ((String) obj.get(Command.TYPE)) {
 		case (Command.TYPE_LOCK_ID):
+		case (Command.TYPE_LOCK_ROOM):
 			ret = Boolean.parseBoolean((String) obj.get(Command.P_LOCKED));
 			break;
 		default:
