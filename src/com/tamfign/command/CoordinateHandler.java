@@ -42,6 +42,7 @@ public class CoordinateHandler extends ExternalHandler {
 
 	protected void handleServerOn(String serverId) {
 		getConnector().addBroadcastList(serverId, null);
+		ChatRoomListController.getInstance().addRoom(ChatRoomListController.getMainHall(serverId), serverId, null);
 	}
 
 	private void handleReleaseRoom(String serverId, String roomId, boolean approved) {

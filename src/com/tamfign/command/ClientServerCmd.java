@@ -62,12 +62,16 @@ public class ClientServerCmd extends Command {
 	public String whoRs(String roomId, ArrayList<String> idList, String owner) {
 		JSONObject root = new JSONObject();
 		JSONArray jList = new JSONArray();
-		jList.addAll(idList);
+		for (String member : idList) {
+			if (member != null) {
+				jList.add(member);
+			}
+		}
 
 		root.put(TYPE, TYPE_ROOM_CONTENTS);
 		root.put(P_ROOM_ID, roomId);
-		root.put(P_IDENTITIES, idList);
-		root.put(P_OWNER, owner);
+		root.put(P_IDENTITIES, jList);
+		root.put(P_OWNER, owner == null ? "" : owner);
 		return root.toJSONString();
 	}
 

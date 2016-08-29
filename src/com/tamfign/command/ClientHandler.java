@@ -94,10 +94,10 @@ public class ClientHandler extends ExternalHandler {
 
 	private void handleNewIdentity(String id) {
 		if (lockIdentity(id)) {
-			createIdentity(id, ChatRoomListController.getMainHall());
+			createIdentity(id, ChatRoomListController.getLocalMainHall());
 			approveIdentity(id);
-			((ClientConnector) getConnector()).broadcastWithinRoom(null, ChatRoomListController.getMainHall(),
-					command.roomChangeRq(thisClientId, "", ChatRoomListController.getMainHall()));
+			((ClientConnector) getConnector()).broadcastWithinRoom(null, ChatRoomListController.getLocalMainHall(),
+					command.roomChangeRq(thisClientId, "", ChatRoomListController.getLocalMainHall()));
 		} else {
 			disapproveIdentity(id);
 		}
@@ -121,7 +121,7 @@ public class ClientHandler extends ExternalHandler {
 		if (ChatRoomListController.getInstance().isRoomExists(roomId)) {
 			newRoom = roomId;
 		} else {
-			newRoom = ChatRoomListController.getMainHall();
+			newRoom = ChatRoomListController.getLocalMainHall();
 		}
 		createIdentity(id, newRoom);
 		((ClientConnector) getConnector()).broadcastWithinRoom(null, newRoom,
@@ -167,15 +167,15 @@ public class ClientHandler extends ExternalHandler {
 
 		// TODO need to be well tested
 		for (String id : currentMemberList) {
-			((ClientConnector) getConnector()).broadcastWithinRoom(null, ChatRoomListController.getMainHall(),
-					command.roomChangeRq(id, roomId, ChatRoomListController.getMainHall()));
+			((ClientConnector) getConnector()).broadcastWithinRoom(null, ChatRoomListController.getLocalMainHall(),
+					command.roomChangeRq(id, roomId, ChatRoomListController.getLocalMainHall()));
 		}
 	}
 
 	private void deleteRoom(String roomId) {
 		// Change room id in the client list.
 		for (String identity : ChatRoomListController.getInstance().getChatRoom(roomId).getMemberList()) {
-			ClientListController.getInstance().getClient(identity).setRoomId(ChatRoomListController.getMainHall());
+			ClientListController.getInstance().getClient(identity).setRoomId(ChatRoomListController.getLocalMainHall());
 		}
 		ChatRoomListController.getInstance().deleteRoom(roomId);
 	}

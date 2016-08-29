@@ -13,7 +13,7 @@ public class ChatRoomListController {
 
 	private ChatRoomListController() {
 		this.roomList = new HashMap<String, ChatRoom>();
-		addRoom(getMainHall(), Configuration.getServerId(), null);
+		addRoom(getLocalMainHall(), Configuration.getServerId(), null);
 	}
 
 	public static ChatRoomListController getInstance() {
@@ -40,7 +40,7 @@ public class ChatRoomListController {
 
 	public void deleteRoom(String roomId) {
 		synchronized (this) {
-			roomList.get(getMainHall()).addMembers(roomList.get(roomId).getMemberList());
+			roomList.get(getLocalMainHall()).addMembers(roomList.get(roomId).getMemberList());
 			roomList.remove(roomId);
 		}
 	}
@@ -77,7 +77,11 @@ public class ChatRoomListController {
 		}
 	}
 
-	public static String getMainHall() {
+	public static String getLocalMainHall() {
 		return MAIN_HALL + Configuration.getServerId();
+	}
+
+	public static String getMainHall(String serverId) {
+		return MAIN_HALL + serverId;
 	}
 }

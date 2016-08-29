@@ -9,6 +9,7 @@ import org.json.simple.JSONObject;
 import com.tamfign.command.Command;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.configuration.ServerConfig;
+import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ServerListController;
 
 public class ConnectController {
@@ -56,6 +57,8 @@ public class ConnectController {
 			} else {
 				sendOutOwnId(another);
 				servers.addBroadcastList(server.getId(), null);
+				ChatRoomListController.getInstance().addRoom(ChatRoomListController.getMainHall(server.getId()),
+						server.getId(), null);
 			}
 		} catch (Exception e) {
 			ret = false;
