@@ -35,7 +35,6 @@ public abstract class ExternalHandler implements Runnable {
 				}
 			}
 		} catch (SocketException e) {
-			e.printStackTrace();
 			// That's normal is socket is closed
 		} catch (IOException e) {
 			e.printStackTrace();

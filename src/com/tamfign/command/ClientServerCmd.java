@@ -41,7 +41,7 @@ public class ClientServerCmd extends Command {
 	}
 
 	// Server todo
-	public String serverChangeBc(boolean result, String serverId) {
+	public String serverChangeRs(boolean result, String serverId) {
 		JSONObject root = new JSONObject();
 		root.put(TYPE, TYPE_SERVER_CHANGE);
 		root.put(P_APPROVED, Boolean.toString(result));

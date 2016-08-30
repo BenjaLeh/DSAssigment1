@@ -117,6 +117,10 @@ public class ClientHandler extends ExternalHandler {
 	}
 
 	private void handlerMoveJoin(String id, String formerRoom, String roomId) {
+		if (ClientListController.getInstance().isIdentityExist(id)) {
+			response(command.serverChangeRs(false, Configuration.getServerId()));
+			return;
+		}
 		String newRoom = null;
 		if (ChatRoomListController.getInstance().isRoomExists(roomId)) {
 			newRoom = roomId;
@@ -124,6 +128,7 @@ public class ClientHandler extends ExternalHandler {
 			newRoom = ChatRoomListController.getLocalMainHall();
 		}
 		createIdentity(id, newRoom);
+		response(command.serverChangeRs(true, Configuration.getServerId()));
 		((ClientConnector) getConnector()).broadcastWithinRoom(null, newRoom,
 				command.roomChangeRq(thisClientId, formerRoom, newRoom));
 	}
