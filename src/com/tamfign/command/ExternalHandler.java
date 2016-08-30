@@ -35,13 +35,15 @@ public abstract class ExternalHandler implements Runnable {
 				}
 			}
 		} catch (SocketException e) {
-			// That's normal is socket is closed
+			handleDisconnect();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 			close();
 		}
 	}
+
+	protected abstract void handleDisconnect();
 
 	protected Connector getConnector() {
 		return this.connetor;

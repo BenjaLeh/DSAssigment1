@@ -115,4 +115,9 @@ public class CoordinateHandler extends ExternalHandler {
 		}
 		return ret;
 	}
+
+	@Override
+	protected void handleDisconnect() {
+		// Do nothing, as assuming that servers won't crash.
+	}
 }

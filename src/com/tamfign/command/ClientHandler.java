@@ -10,6 +10,7 @@ import com.tamfign.configuration.ServerConfig;
 import com.tamfign.connection.ClientConnector;
 import com.tamfign.model.ChatRoom;
 import com.tamfign.model.ChatRoomListController;
+import com.tamfign.model.Client;
 import com.tamfign.model.ClientListController;
 import com.tamfign.model.ServerListController;
 
@@ -144,7 +145,13 @@ public class ClientHandler extends ExternalHandler {
 	}
 
 	private String getCurrentRoomId() {
-		return ClientListController.getInstance().getClient(thisClientId).getRoomId();
+		String ret = null;
+
+		Client client = ClientListController.getInstance().getClient(thisClientId);
+		if (client != null) {
+			ret = client.getRoomId();
+		}
+		return ret;
 	}
 
 	private void deleteRoomAndBroadcastRoomChange() {
@@ -159,7 +166,13 @@ public class ClientHandler extends ExternalHandler {
 	}
 
 	private boolean isOwnerOfRoom() {
-		return ClientListController.getInstance().getClient(thisClientId).getOwnRoom() != null;
+		boolean ret = false;
+		Client client = ClientListController.getInstance().getClient(thisClientId);
+		if (client != null) {
+			ret = client.getOwnRoom() != null;
+		}
+
+		return ret;
 	}
 
 	private void removeFromClientList() {
@@ -346,5 +359,13 @@ public class ClientHandler extends ExternalHandler {
 		obj.put(Command.CMD, cmd);
 		obj.put(Command.P_IDENTITY, identity);
 		return obj;
+	}
+
+	@Override
+	protected void handleDisconnect() {
+		// In case of quit again.
+		if (thisClientId != null) {
+			handleQuit();
+		}
 	}
 }
