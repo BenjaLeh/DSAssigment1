@@ -1,12 +1,11 @@
 package com.tamfign.command;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -35,8 +34,10 @@ public abstract class ExternalHandler implements Runnable {
 					cmdAnalyse(cmd);
 				}
 			}
+		} catch (SocketException e) {
+			e.printStackTrace();
+			// That's normal is socket is closed
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			close();
@@ -47,7 +48,7 @@ public abstract class ExternalHandler implements Runnable {
 		return this.connetor;
 	}
 
-	//TODO refractory
+	// TODO refractory
 	protected void certainClientSocket(String id) {
 		connetor.addBroadcastList(id, socket);
 	}
@@ -72,7 +73,7 @@ public abstract class ExternalHandler implements Runnable {
 			System.out.println("Response :" + cmd);
 			PrintWriter os = new PrintWriter(socket.getOutputStream());
 			os.println(cmd);
-			os.flush();//TODO refractory
+			os.flush();// TODO refractory
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

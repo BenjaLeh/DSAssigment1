@@ -109,10 +109,10 @@ public class ClientHandler extends ExternalHandler {
 	}
 
 	private void handleQuit() {
-		removeFromClientList();
 		if (isOwnerOfRoom()) {
 			deleteRoomAndBroadcastRoomChange();
 		}
+		removeFromClientList();
 		responseChangeRoomAndTerminate();
 	}
 
@@ -208,6 +208,11 @@ public class ClientHandler extends ExternalHandler {
 	}
 
 	private void terminate() {
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		terminate(thisClientId);// Will close socket and terminal this thread.
 		thisClientId = null;
 	}
@@ -259,8 +264,12 @@ public class ClientHandler extends ExternalHandler {
 	}
 
 	private boolean lockRoomId(String roomId) {
-		boolean ret = getConnector().requestTheOther(getInternRoomCmdObject(Command.CMD_LOCK_ROOM, roomId));
-		releaseRoomId(roomId, ret);
+		boolean ret = false;
+
+		if (!ChatRoomListController.getInstance().isRoomExists(roomId)) {
+			ret = getConnector().requestTheOther(getInternRoomCmdObject(Command.CMD_LOCK_ROOM, roomId));
+			releaseRoomId(roomId, ret);
+		}
 		return ret;
 	}
 
@@ -297,8 +306,11 @@ public class ClientHandler extends ExternalHandler {
 	}
 
 	private boolean lockIdentity(String identity) {
-		boolean ret = getConnector().requestTheOther(getInternIdCmdObject(Command.CMD_LOCK_IDENTITY, identity));
-		releaseIdentity(identity);
+		boolean ret = false;
+		if (!ClientListController.getInstance().isIdentityExist(identity)) {
+			ret = getConnector().requestTheOther(getInternIdCmdObject(Command.CMD_LOCK_IDENTITY, identity));
+			releaseIdentity(identity);
+		}
 		return ret;
 	}
 
