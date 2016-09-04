@@ -56,7 +56,7 @@ public class ClientHandler extends ExternalHandler {
 	}
 
 	private void handleJoinRoom(String roomId) {
-		if (isRoomAvailable(roomId)) {
+		if (!isOwnerOfRoom() && isRoomAvailable(roomId)) {
 			ServerConfig server = getServer(roomId);
 			if (!server.isItselft()) {
 				routeClient(roomId, server);
@@ -174,7 +174,10 @@ public class ClientHandler extends ExternalHandler {
 	}
 
 	private void removeFromClientList() {
-		ChatRoomListController.getInstance().getChatRoom(getCurrentRoomId()).removeMember(thisClientId);
+		ChatRoom room = ChatRoomListController.getInstance().getChatRoom(getCurrentRoomId());
+		if (room != null) {
+			room.removeMember(thisClientId);
+		}
 		ClientListController.getInstance().removeIndentity(thisClientId);
 	}
 
@@ -252,14 +255,7 @@ public class ClientHandler extends ExternalHandler {
 	}
 
 	private boolean isRoomAvailable(String roomId) {
-		boolean ret = false;
-
-		if (ChatRoomListController.getInstance().isRoomExists(roomId)) {
-			if (!isOwnerOfRoom()) {
-				ret = true;
-			}
-		}
-		return ret;
+		return (ChatRoomListController.getInstance().isRoomExists(roomId));
 	}
 
 	private void disapproveChatRoom(String roomId) {
@@ -276,6 +272,7 @@ public class ClientHandler extends ExternalHandler {
 				.getChatRoom(ClientListController.getInstance().getClient(thisClientId).getRoomId())
 				.removeMember(thisClientId);
 		ClientListController.getInstance().getClient(thisClientId).setRoomId(roomId);
+		ClientListController.getInstance().getClient(thisClientId).setOwnRoom(roomId);
 	}
 
 	private boolean lockRoomId(String roomId) {

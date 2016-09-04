@@ -3,10 +3,10 @@ package com.tamfign.command;
 import org.json.simple.JSONObject;
 
 public class Command {
-	public final static String TYPE = "type";
-	public final static String CMD = "cmd";
+	protected final static String TYPE = "type";
+	protected final static String CMD = "cmd";
 	protected final static String TYPE_NEW_ID = "newidentity";
-	public final static String TYPE_LOCK_ID = "lockidenity";
+	protected final static String TYPE_LOCK_ID = "lockidenity";
 	protected final static String TYPE_RELEASE_ID = "releaseidentity";
 	protected final static String TYPE_WHO = "who";
 
@@ -15,7 +15,7 @@ public class Command {
 	protected final static String TYPE_CHANGE_ROOM = "roomchange";
 	protected final static String TYPE_ROOM_CONTENTS = "roomcontents";
 	protected final static String TYPE_CREATE_ROOM = "createroom";
-	public final static String TYPE_LOCK_ROOM = "lockroomid";
+	protected final static String TYPE_LOCK_ROOM = "lockroomid";
 	protected final static String TYPE_RELEASE_ROOM = "releaseroomid";
 	protected final static String TYPE_JOIN = "join";
 	protected final static String TYPE_DELETE_ROOM = "deleteroom";
@@ -26,7 +26,7 @@ public class Command {
 	protected final static String TYPE_MESSAGE = "message";
 	protected final static String TYPE_QUIT = "quit";
 
-	public final static String TYPE_SERVER_ON = "server_on";
+	protected final static String TYPE_SERVER_ON = "server_on";
 
 	protected final static String P_IDENTITY = "identity";
 	protected final static String P_SERVER_ID = "serverid";
