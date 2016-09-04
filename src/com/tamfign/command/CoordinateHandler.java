@@ -5,16 +5,14 @@ import java.net.Socket;
 import org.json.simple.JSONObject;
 
 import com.tamfign.configuration.Configuration;
-import com.tamfign.connection.Connector;
+import com.tamfign.connection.CoordinateConnector;
 import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ClientListController;
 
 public class CoordinateHandler extends ExternalHandler {
-	private ServerServerCmd command = null;
 
-	public CoordinateHandler(Connector connetor, Socket socket) {
+	public CoordinateHandler(CoordinateConnector connetor, Socket socket) {
 		super(connetor, socket);
-		this.command = new ServerServerCmd();
 	}
 
 	@Override
@@ -48,8 +46,7 @@ public class CoordinateHandler extends ExternalHandler {
 	}
 
 	protected void handleServerOn(String serverId) {
-		getConnector().addBroadcastList(serverId, null);
-		ChatRoomListController.getInstance().addRoom(ChatRoomListController.getMainHall(serverId), serverId, null);
+		((CoordinateConnector) getConnector()).connectServer(serverId);
 	}
 
 	private void handleReleaseRoom(String serverId, String roomId, boolean approved) {
@@ -69,11 +66,11 @@ public class CoordinateHandler extends ExternalHandler {
 	}
 
 	private void disapproveLockRoom(String roomId) {
-		response(command.lockRoomRs(Configuration.getServerId(), roomId, false));
+		response(ServerServerCmd.lockRoomRs(Configuration.getServerId(), roomId, false));
 	}
 
 	private void approveLockRoom(String roomId) {
-		response(command.lockRoomRs(Configuration.getServerId(), roomId, true));
+		response(ServerServerCmd.lockRoomRs(Configuration.getServerId(), roomId, true));
 	}
 
 	private boolean checkLocalChatRoomList(String serverId, String roomId) {
@@ -100,11 +97,11 @@ public class CoordinateHandler extends ExternalHandler {
 	}
 
 	private void disapproveLockId(String identity) {
-		response(command.lockIdentityRs(Configuration.getServerId(), identity, false));
+		response(ServerServerCmd.lockIdentityRs(Configuration.getServerId(), identity, false));
 	}
 
 	private void approveLockId(String identity) {
-		response(command.lockIdentityRs(Configuration.getServerId(), identity, true));
+		response(ServerServerCmd.lockIdentityRs(Configuration.getServerId(), identity, true));
 	}
 
 	private boolean checkLocalIdentityList(String serverId, String identity) {

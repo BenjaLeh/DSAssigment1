@@ -1,9 +1,6 @@
 package com.tamfign.command;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -12,10 +9,11 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.tamfign.connection.Connector;
+import com.tamfign.connection.ConnectorInf;
 
 public abstract class ExternalHandler implements Runnable {
 	private Socket socket = null;
-	private Connector connetor = null;
+	private ConnectorInf connetor = null;
 
 	public ExternalHandler(Connector connetor, Socket socket) {
 		this.connetor = connetor;
@@ -24,12 +22,10 @@ public abstract class ExternalHandler implements Runnable {
 
 	@Override
 	public void run() {
-		BufferedReader br = null;
 		String cmd;
 		try {
-			br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			while (socket.isConnected()) {
-				cmd = br.readLine();
+				cmd = getConnector().readCmd(socket);
 				if (cmd != null && !"".equals(cmd)) {
 					cmdAnalyse(cmd);
 				}
@@ -39,46 +35,27 @@ public abstract class ExternalHandler implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			close();
+			getConnector().close(socket);
 		}
 	}
 
 	protected abstract void handleDisconnect();
 
-	protected Connector getConnector() {
+	protected ConnectorInf getConnector() {
 		return this.connetor;
 	}
 
-	// TODO refractory
-	protected void certainClientSocket(String id) {
-		connetor.addBroadcastList(id, socket);
-	}
-
-	protected void close() {
-		if (socket != null) {
-			try {
-				socket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-			}
-		}
+	protected Socket getSocket() {
+		return this.socket;
 	}
 
 	protected void terminate(String id) {
-		close();
+		getConnector().close(socket);
 		connetor.removeBroadcastList(id);
 	}
 
 	protected void response(String cmd) {
-		try {
-			System.out.println("Response :" + cmd);
-			PrintWriter os = new PrintWriter(socket.getOutputStream());
-			os.println(cmd);
-			os.flush();// TODO refractory
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		getConnector().write(this.socket, cmd);
 	}
 
 	private void cmdAnalyse(String cmd) {
@@ -86,7 +63,7 @@ public abstract class ExternalHandler implements Runnable {
 			System.out.println(cmd);
 			cmdAnalysis((JSONObject) new JSONParser().parse(cmd));
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

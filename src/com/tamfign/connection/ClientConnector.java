@@ -3,6 +3,7 @@ package com.tamfign.connection;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -15,9 +16,11 @@ import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ServerListController;
 
 public class ClientConnector extends Connector implements Runnable {
+	private HashMap<String, Socket> clientSocketsList = null;
 
 	protected ClientConnector(ConnectController controller) {
 		super(controller);
+		this.clientSocketsList = new HashMap<String, Socket>();
 	}
 
 	public void run() {
@@ -46,12 +49,18 @@ public class ClientConnector extends Connector implements Runnable {
 		return new ClientHandler(this, socket);
 	}
 
-	@Override
 	public boolean requestTheOther(JSONObject obj) {
 		return getController().requestServer(obj);
 	}
 
-	// TODO Finetune
+	public void broadcast(String cmd) {
+		broadcast(new ArrayList<Socket>(clientSocketsList.values()), cmd);
+	}
+
+	public boolean broadcastAndGetResult(String cmd) {
+		return broadcastAndGetResult(new ArrayList<Socket>(clientSocketsList.values()), cmd);
+	}
+
 	public void broadcastWithinRoom(String former, String roomId, String cmd) {
 		ArrayList<Socket> list = new ArrayList<Socket>();
 		ArrayList<String> memberList = new ArrayList<String>();
@@ -63,7 +72,7 @@ public class ClientConnector extends Connector implements Runnable {
 			memberList.addAll(ChatRoomListController.getInstance().getMemberList(roomId));
 		}
 
-		Iterator<Entry<String, Socket>> it = getLocalSocketListIt();
+		Iterator<Entry<String, Socket>> it = clientSocketsList.entrySet().iterator();
 		while (it.hasNext()) {
 			Entry<String, Socket> entry = it.next();
 			for (String identity : memberList) {
@@ -73,5 +82,13 @@ public class ClientConnector extends Connector implements Runnable {
 			}
 		}
 		broadcast(list, cmd);
+	}
+
+	public void addBroadcastList(String id, Socket socket) {
+		clientSocketsList.put(id, socket);
+	}
+
+	public void removeBroadcastList(String id) {
+		clientSocketsList.remove(id);
 	}
 }

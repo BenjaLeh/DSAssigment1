@@ -21,7 +21,9 @@ public class ServerListController {
 	}
 
 	public void addServer(ServerConfig server) {
-		serverList.add(server);
+		synchronized (this) {
+			serverList.add(server);
+		}
 	}
 
 	public int size() {

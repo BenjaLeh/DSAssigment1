@@ -6,10 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -18,34 +15,19 @@ import org.json.simple.parser.ParseException;
 import com.tamfign.command.Command;
 import com.tamfign.command.ExternalHandler;
 
-public abstract class Connector {
-	protected abstract ExternalHandler getHandler(Socket socket);
+public abstract class Connector implements ConnectorInf {
 
-	private HashMap<String, Socket> clientSocketsList = null;
 	private ConnectController controller = null;
 
 	protected Connector(ConnectController controller) {
 		this.controller = controller;
-		this.clientSocketsList = new HashMap<String, Socket>();
 	}
-
-	public abstract boolean requestTheOther(JSONObject obj);
 
 	protected ConnectController getController() {
 		return this.controller;
 	}
 
-	public void addBroadcastList(String id, Socket socket) {
-		clientSocketsList.put(id, socket);
-	}
-
-	public void removeBroadcastList(String id) {
-		clientSocketsList.remove(id);
-	}
-
-	protected Iterator<Entry<String, Socket>> getLocalSocketListIt() {
-		return this.clientSocketsList.entrySet().iterator();
-	}
+	protected abstract ExternalHandler getHandler(Socket socket);
 
 	protected void keepListenPortAndAcceptMultiClient(int port) throws IOException {
 		ServerSocket server = new ServerSocket(port);
@@ -66,12 +48,21 @@ public abstract class Connector {
 		}
 	}
 
-	public void broadcast(String cmd) {
-		Iterator<Entry<String, Socket>> it = clientSocketsList.entrySet().iterator();
-		while (it.hasNext()) {
-			Socket socket = it.next().getValue();
-			write(socket, cmd);
+	protected boolean broadcastAndGetResult(List<Socket> listenerList, String cmd) {
+		boolean ret = true;
+		if (listenerList != null) {
+			for (Socket socket : listenerList) {
+				try {
+					write(socket, cmd);
+					ret &= readResult(socket);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
 		}
+		return ret;
 	}
 
 	protected void broadcast(List<Socket> listenerList, String cmd) {
@@ -82,45 +73,32 @@ public abstract class Connector {
 		}
 	}
 
-	public boolean broadcastAndGetResult(String cmd) {
-		boolean ret = false;
-		Iterator<Entry<String, Socket>> it = clientSocketsList.entrySet().iterator();
-		while (it.hasNext()) {
-			Socket socket = it.next().getValue();
-			try {
-				write(socket, cmd);
-				BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				JSONObject root = (JSONObject) new JSONParser().parse(br.readLine());
-				ret &= Boolean.parseBoolean((String) root.get(Command.P_APPROVED));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return ret;
+	private boolean readResult(Socket socket) throws ParseException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		return Command.getResult((JSONObject) new JSONParser().parse(br.readLine()));
 	}
 
-	protected void write(Socket socket, String cmd) {
+	public String readCmd(Socket socket) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		return br.readLine();
+	}
+
+	public void write(Socket socket, String cmd) {
 		try {
 			PrintWriter os = new PrintWriter(socket.getOutputStream());
 			os.println(cmd);
 			os.flush();
-			// TODO Multi-thread?
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	protected void close(Socket socket) {
+	public void close(Socket socket) {
 		if (socket != null) {
 			try {
 				socket.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}

@@ -6,11 +6,9 @@ import com.tamfign.configuration.Configuration;
 import com.tamfign.connection.Connector;
 
 public class InternalHandler {
-	private ServerServerCmd command = null;
 	private Connector connector = null;
 
 	public InternalHandler(Connector connector) {
-		this.command = new ServerServerCmd();
 		this.connector = connector;
 	}
 
@@ -48,22 +46,22 @@ public class InternalHandler {
 	}
 
 	private void broadcastReleaseRoomId(String roomId, boolean result) {
-		connector.broadcast(command.releaseRoom(Configuration.getServerId(), roomId, result));
+		connector.broadcast(ServerServerCmd.releaseRoom(Configuration.getServerId(), roomId, result));
 	}
 
 	private void broadcastDeleteRoomId(String roomId) {
-		connector.broadcast(command.deleteRoomBc(Configuration.getServerId(), roomId));
+		connector.broadcast(ServerServerCmd.deleteRoomBc(Configuration.getServerId(), roomId));
 	}
 
 	private boolean broadcastLockRoomId(String roomId) {
-		return connector.broadcastAndGetResult(command.lockRoomRq(Configuration.getServerId(), roomId));
+		return connector.broadcastAndGetResult(ServerServerCmd.lockRoomRq(Configuration.getServerId(), roomId));
 	}
 
 	private void broadcastReleaseIdentity(String identity) {
-		connector.broadcast(command.releaseIdentityRq(Configuration.getServerId(), identity));
+		connector.broadcast(ServerServerCmd.releaseIdentityRq(Configuration.getServerId(), identity));
 	}
 
 	private boolean broadcastLockIdentity(String identity) {
-		return connector.broadcastAndGetResult(command.lockIdentityRq(Configuration.getServerId(), identity));
+		return connector.broadcastAndGetResult(ServerServerCmd.lockIdentityRq(Configuration.getServerId(), identity));
 	}
 }

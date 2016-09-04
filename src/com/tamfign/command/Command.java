@@ -1,5 +1,7 @@
 package com.tamfign.command;
 
+import org.json.simple.JSONObject;
+
 public class Command {
 	public final static String TYPE = "type";
 	public final static String CMD = "cmd";
@@ -27,9 +29,9 @@ public class Command {
 	public final static String TYPE_SERVER_ON = "server_on";
 
 	protected final static String P_IDENTITY = "identity";
-	public final static String P_SERVER_ID = "serverid";
-	public final static String P_LOCKED = "locked";
-	public final static String P_APPROVED = "approved";
+	protected final static String P_SERVER_ID = "serverid";
+	protected final static String P_LOCKED = "locked";
+	protected final static String P_APPROVED = "approved";
 	protected final static String P_FORMER = "former";
 	protected final static String P_ROOM_ID = "roomid";
 	protected final static String P_ROOMS = "rooms";
@@ -39,9 +41,23 @@ public class Command {
 	protected final static String P_PORT = "port";
 	protected final static String P_CONTENT = "content";
 
-	public final static String CMD_LOCK_IDENTITY = "CMD_LOCK_IDENTITY";
-	public final static String CMD_RELEASE_IDENTITY = "CMD_RELEASE_IDENTITY";
-	public final static String CMD_LOCK_ROOM = "CMD_LOCK_ROOM";
-	public final static String CMD_RELEASE_ROOM = "CMD_RELEASE_ROOM";
-	public final static String CMD_DELETE_ROOM = "CMD_DELETE_ROOM";
+	protected final static String CMD_LOCK_IDENTITY = "CMD_LOCK_IDENTITY";
+	protected final static String CMD_RELEASE_IDENTITY = "CMD_RELEASE_IDENTITY";
+	protected final static String CMD_LOCK_ROOM = "CMD_LOCK_ROOM";
+	protected final static String CMD_RELEASE_ROOM = "CMD_RELEASE_ROOM";
+	protected final static String CMD_DELETE_ROOM = "CMD_DELETE_ROOM";
+
+	public static boolean getResult(JSONObject obj) {
+		boolean ret = false;
+
+		switch ((String) obj.get(Command.TYPE)) {
+		case (Command.TYPE_LOCK_ID):
+		case (Command.TYPE_LOCK_ROOM):
+			ret = Boolean.parseBoolean((String) obj.get(Command.P_LOCKED));
+			break;
+		default:
+			ret = Boolean.parseBoolean((String) obj.get(Command.P_APPROVED));
+		}
+		return ret;
+	}
 }
