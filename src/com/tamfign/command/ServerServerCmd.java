@@ -95,4 +95,26 @@ public class ServerServerCmd extends Command {
 		obj.put(Command.P_SERVER_ID, Configuration.getServerId());
 		return obj.toJSONString();
 	}
+
+	public static JSONObject getInternRoomCmdObject(String cmd, String roomId) {
+		JSONObject obj = new JSONObject();
+		obj.put(Command.CMD, cmd);
+		obj.put(Command.P_ROOM_ID, roomId);
+		return obj;
+	}
+
+	public static JSONObject getInternRoomResultCmdObject(String cmd, String roomId, boolean result) {
+		JSONObject obj = new JSONObject();
+		obj.put(Command.CMD, cmd);
+		obj.put(Command.P_ROOM_ID, roomId);
+		obj.put(Command.P_APPROVED, result);
+		return obj;
+	}
+
+	public static JSONObject getInternIdCmdObject(String cmd, String identity) {
+		JSONObject obj = new JSONObject();
+		obj.put(Command.CMD, cmd);
+		obj.put(Command.P_IDENTITY, identity);
+		return obj;
+	}
 }

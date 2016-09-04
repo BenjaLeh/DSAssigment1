@@ -182,7 +182,8 @@ public class ClientHandler extends ExternalHandler {
 	}
 
 	private void broadcastDeleteRoom(String roomId, ArrayList<String> currentMemberList) {
-		((ClientConnector) getConnector()).requestTheOther(getInternRoomCmdObject(Command.CMD_DELETE_ROOM, roomId));
+		((ClientConnector) getConnector())
+				.requestTheOther(ServerServerCmd.getInternRoomCmdObject(Command.CMD_DELETE_ROOM, roomId));
 
 		for (String id : currentMemberList) {
 			((ClientConnector) getConnector()).broadcastWithinRoom(null, ChatRoomListController.getLocalMainHall(),
@@ -280,15 +281,15 @@ public class ClientHandler extends ExternalHandler {
 
 		if (!ChatRoomListController.getInstance().isRoomExists(roomId)) {
 			ret = ((ClientConnector) getConnector())
-					.requestTheOther(getInternRoomCmdObject(Command.CMD_LOCK_ROOM, roomId));
+					.requestTheOther(ServerServerCmd.getInternRoomCmdObject(Command.CMD_LOCK_ROOM, roomId));
 			releaseRoomId(roomId, ret);
 		}
 		return ret;
 	}
 
 	private void releaseRoomId(String roomId, boolean result) {
-		((ClientConnector) getConnector())
-				.requestTheOther(getInternRoomResultCmdObject(Command.CMD_RELEASE_ROOM, roomId, result));
+		((ClientConnector) getConnector()).requestTheOther(
+				ServerServerCmd.getInternRoomResultCmdObject(Command.CMD_RELEASE_ROOM, roomId, result));
 	}
 
 	private void handleList() {
@@ -323,7 +324,7 @@ public class ClientHandler extends ExternalHandler {
 		boolean ret = false;
 		if (!ClientListController.getInstance().isIdentityExist(identity)) {
 			ret = ((ClientConnector) getConnector())
-					.requestTheOther(getInternIdCmdObject(Command.CMD_LOCK_IDENTITY, identity));
+					.requestTheOther(ServerServerCmd.getInternIdCmdObject(Command.CMD_LOCK_IDENTITY, identity));
 			releaseIdentity(identity);
 		}
 		return ret;
@@ -331,32 +332,7 @@ public class ClientHandler extends ExternalHandler {
 
 	private void releaseIdentity(String identity) {
 		((ClientConnector) getConnector())
-				.requestTheOther(getInternIdCmdObject(Command.CMD_RELEASE_IDENTITY, identity));
-	}
-
-	@SuppressWarnings("unchecked")
-	private JSONObject getInternRoomCmdObject(String cmd, String roomId) {
-		JSONObject obj = new JSONObject();
-		obj.put(Command.CMD, cmd);
-		obj.put(Command.P_ROOM_ID, roomId);
-		return obj;
-	}
-
-	@SuppressWarnings("unchecked")
-	private JSONObject getInternRoomResultCmdObject(String cmd, String roomId, boolean result) {
-		JSONObject obj = new JSONObject();
-		obj.put(Command.CMD, cmd);
-		obj.put(Command.P_ROOM_ID, roomId);
-		obj.put(Command.P_APPROVED, result);
-		return obj;
-	}
-
-	@SuppressWarnings("unchecked")
-	private JSONObject getInternIdCmdObject(String cmd, String identity) {
-		JSONObject obj = new JSONObject();
-		obj.put(Command.CMD, cmd);
-		obj.put(Command.P_IDENTITY, identity);
-		return obj;
+				.requestTheOther(ServerServerCmd.getInternIdCmdObject(Command.CMD_RELEASE_IDENTITY, identity));
 	}
 
 	@Override
