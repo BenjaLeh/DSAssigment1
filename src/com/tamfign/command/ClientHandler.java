@@ -134,6 +134,8 @@ public class ClientHandler extends ExternalHandler {
 
 	private void responseChangeRoomAndTerminate() {
 		response(ClientServerCmd.roomChangeRq(thisClientId, "", ""));
+		((ClientConnector) getConnector()).broadcastWithinRoom(null, ChatRoomListController.getLocalMainHall(),
+				ClientServerCmd.roomChangeRq(this.thisClientId, "", ""));
 		terminate();
 	}
 
