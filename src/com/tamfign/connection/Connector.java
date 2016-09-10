@@ -13,7 +13,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.tamfign.command.Command;
-import com.tamfign.command.ExternalHandler;
+import com.tamfign.command.CommandListener;
 
 public abstract class Connector implements ConnectorInf {
 
@@ -27,7 +27,7 @@ public abstract class Connector implements ConnectorInf {
 		return this.controller;
 	}
 
-	protected abstract ExternalHandler getHandler(Socket socket);
+	protected abstract CommandListener getHandler(Socket socket);
 
 	protected void keepListenPortAndAcceptMultiClient(int port) throws IOException {
 		ServerSocket server = new ServerSocket(port);
@@ -37,11 +37,8 @@ public abstract class Connector implements ConnectorInf {
 				socket = server.accept();
 				Thread handleThread = new Thread(getHandler(socket));
 				handleThread.start();
-				Thread.sleep(1000);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			server.close();

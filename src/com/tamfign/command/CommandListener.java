@@ -2,7 +2,6 @@ package com.tamfign.command;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketException;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,11 +10,11 @@ import org.json.simple.parser.ParseException;
 import com.tamfign.connection.Connector;
 import com.tamfign.connection.ConnectorInf;
 
-public abstract class ExternalHandler implements Runnable {
+public abstract class CommandListener implements Runnable {
 	private Socket socket = null;
 	private ConnectorInf connetor = null;
 
-	public ExternalHandler(Connector connetor, Socket socket) {
+	public CommandListener(Connector connetor, Socket socket) {
 		this.connetor = connetor;
 		this.socket = socket;
 	}
@@ -27,13 +26,11 @@ public abstract class ExternalHandler implements Runnable {
 			while (socket.isConnected()) {
 				cmd = getConnector().readCmd(socket);
 				if (cmd != null && !"".equals(cmd)) {
-					cmdAnalyse(cmd);
+					handleRequest(cmd);
 				}
 			}
-		} catch (SocketException e) {
-			handleDisconnect();
 		} catch (IOException e) {
-			e.printStackTrace();
+			handleDisconnect();
 		} finally {
 			getConnector().close(socket);
 		}
@@ -41,12 +38,14 @@ public abstract class ExternalHandler implements Runnable {
 
 	protected abstract void handleDisconnect();
 
-	protected ConnectorInf getConnector() {
-		return this.connetor;
-	}
+	protected abstract void handleRequest(String cmd);
 
 	protected Socket getSocket() {
 		return this.socket;
+	}
+
+	protected ConnectorInf getConnector() {
+		return this.connetor;
 	}
 
 	protected void terminate(String id) {
@@ -58,14 +57,14 @@ public abstract class ExternalHandler implements Runnable {
 		getConnector().write(this.socket, cmd);
 	}
 
-	private void cmdAnalyse(String cmd) {
+	protected JSONObject getCmdObject(String cmd) {
+		JSONObject ret = null;
 		try {
-			System.out.println(cmd);
-			cmdAnalysis((JSONObject) new JSONParser().parse(cmd));
+			ret = (JSONObject) new JSONParser().parse(cmd);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-	}
 
-	protected abstract void cmdAnalysis(JSONObject obj);
+		return ret;
+	}
 }

@@ -1,6 +1,6 @@
 package com.tamfign.connection;
 
-import org.json.simple.JSONObject;
+import com.tamfign.command.Command;
 
 public class ConnectController {
 	private ClientConnector clients = null;
@@ -21,7 +21,11 @@ public class ConnectController {
 		servers.checkOtherServers();
 	}
 
-	public boolean requestServer(JSONObject obj) {
-		return servers.runInternalRequest(obj);
+	public void requestServer(Command cmd) {
+		servers.runInternalRequest(cmd);
+	}
+
+	public void requestClient(Command cmd) {
+		clients.runInternalRequest(cmd);
 	}
 }

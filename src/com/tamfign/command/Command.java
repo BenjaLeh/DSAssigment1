@@ -1,10 +1,12 @@
 package com.tamfign.command;
 
+import java.net.Socket;
+
 import org.json.simple.JSONObject;
 
 public class Command {
 	protected final static String TYPE = "type";
-	protected final static String CMD = "cmd";
+	protected final static String CMD = "type";
 	protected final static String TYPE_NEW_ID = "newidentity";
 	protected final static String TYPE_LOCK_ID = "lockidenity";
 	protected final static String TYPE_RELEASE_ID = "releaseidentity";
@@ -46,6 +48,28 @@ public class Command {
 	protected final static String CMD_LOCK_ROOM = "CMD_LOCK_ROOM";
 	protected final static String CMD_RELEASE_ROOM = "CMD_RELEASE_ROOM";
 	protected final static String CMD_DELETE_ROOM = "CMD_DELETE_ROOM";
+
+	private String owner = null;
+	private JSONObject obj = null;
+	private Socket socket = null;
+
+	public Command(Socket socket, JSONObject cmd, String owner) {
+		this.owner = owner;
+		this.socket = socket;
+		this.obj = cmd;
+	}
+
+	public Socket getSocket() {
+		return socket;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public JSONObject getObj() {
+		return obj;
+	}
 
 	public static boolean getResult(JSONObject obj) {
 		boolean ret = false;

@@ -5,28 +5,30 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.json.simple.JSONObject;
-
-import com.tamfign.command.CoordinateHandler;
-import com.tamfign.command.ExternalHandler;
-import com.tamfign.command.InternalHandler;
+import com.tamfign.command.CoordinateCmdHandler;
+import com.tamfign.command.CoordinateListener;
+import com.tamfign.command.Command;
+import com.tamfign.command.CommandListener;
 import com.tamfign.command.ServerServerCmd;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.configuration.ServerConfig;
 import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ServerListController;
 
+import messagequeue.MessageQueue;
+
 public class CoordinateConnector extends Connector implements Runnable {
-	private InternalHandler internHandler = null;
 	private static HashMap<String, Socket> serverList = null;
+	private MessageQueue serverMQ = new MessageQueue(new CoordinateCmdHandler(this));
 
 	protected CoordinateConnector(ConnectController controller) {
 		super(controller);
-		internHandler = new InternalHandler(this);
 		serverList = new HashMap<String, Socket>();
 	}
 
 	public void run() {
+		new Thread(serverMQ).start();
+
 		try {
 			System.out.println("Start Listening Other Servers");
 			keepListenPortAndAcceptMultiClient(Configuration.getCoordinationPort());
@@ -110,11 +112,19 @@ public class CoordinateConnector extends Connector implements Runnable {
 	}
 
 	@Override
-	protected ExternalHandler getHandler(Socket socket) {
-		return new CoordinateHandler(this, socket);
+	protected CommandListener getHandler(Socket socket) {
+		return new CoordinateListener(this, socket);
 	}
 
-	public boolean runInternalRequest(JSONObject obj) {
-		return internHandler.cmdAnalysis(obj);
+	public void runInternalRequest(Command cmd) {
+		this.serverMQ.addCmd(cmd);
+	}
+
+	public MessageQueue getMQ() {
+		return this.serverMQ;
+	}
+
+	public void requestTheOther(Command command) {
+		getController().requestClient(command);
 	}
 }

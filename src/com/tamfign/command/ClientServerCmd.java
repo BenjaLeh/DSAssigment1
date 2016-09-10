@@ -1,5 +1,6 @@
 package com.tamfign.command;
 
+import java.net.Socket;
 import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
@@ -7,6 +8,10 @@ import org.json.simple.JSONObject;
 
 @SuppressWarnings("unchecked")
 public class ClientServerCmd extends Command {
+
+	public ClientServerCmd(Socket socket, JSONObject cmd, String owner) {
+		super(socket, cmd, owner);
+	}
 
 	public static String newIdentityRs(String identity, boolean result) {
 		JSONObject root = new JSONObject();

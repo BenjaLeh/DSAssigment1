@@ -1,11 +1,17 @@
 package com.tamfign.command;
 
+import java.net.Socket;
+
 import org.json.simple.JSONObject;
 
 import com.tamfign.configuration.Configuration;
 
 @SuppressWarnings("unchecked")
 public class ServerServerCmd extends Command {
+
+	public ServerServerCmd(Socket socket, JSONObject cmd, String owner) {
+		super(socket, cmd, owner);
+	}
 
 	public static String lockRoomRq(String serverId, String roomId) {
 		JSONObject root = new JSONObject();
@@ -94,27 +100,5 @@ public class ServerServerCmd extends Command {
 		obj.put(Command.TYPE, Command.TYPE_SERVER_ON);
 		obj.put(Command.P_SERVER_ID, Configuration.getServerId());
 		return obj.toJSONString();
-	}
-
-	public static JSONObject getInternRoomCmdObject(String cmd, String roomId) {
-		JSONObject obj = new JSONObject();
-		obj.put(Command.CMD, cmd);
-		obj.put(Command.P_ROOM_ID, roomId);
-		return obj;
-	}
-
-	public static JSONObject getInternRoomResultCmdObject(String cmd, String roomId, boolean result) {
-		JSONObject obj = new JSONObject();
-		obj.put(Command.CMD, cmd);
-		obj.put(Command.P_ROOM_ID, roomId);
-		obj.put(Command.P_APPROVED, result);
-		return obj;
-	}
-
-	public static JSONObject getInternIdCmdObject(String cmd, String identity) {
-		JSONObject obj = new JSONObject();
-		obj.put(Command.CMD, cmd);
-		obj.put(Command.P_IDENTITY, identity);
-		return obj;
 	}
 }

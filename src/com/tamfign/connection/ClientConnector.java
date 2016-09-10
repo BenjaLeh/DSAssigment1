@@ -7,16 +7,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.json.simple.JSONObject;
-
-import com.tamfign.command.ClientHandler;
-import com.tamfign.command.ExternalHandler;
+import com.tamfign.command.ClientCmdHandler;
+import com.tamfign.command.ClientListener;
+import com.tamfign.command.Command;
+import com.tamfign.command.CommandListener;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ServerListController;
 
+import messagequeue.MessageQueue;
+
 public class ClientConnector extends Connector implements Runnable {
 	private HashMap<String, Socket> clientSocketsList = null;
+	private MessageQueue clientMQ = new MessageQueue(new ClientCmdHandler(this));
 
 	protected ClientConnector(ConnectController controller) {
 		super(controller);
@@ -24,6 +27,8 @@ public class ClientConnector extends Connector implements Runnable {
 	}
 
 	public void run() {
+		new Thread(clientMQ).start();
+
 		while (true) {
 			if (!ServerListController.getInstance().isAllServerOn()) {
 				try {
@@ -45,12 +50,12 @@ public class ClientConnector extends Connector implements Runnable {
 	}
 
 	@Override
-	protected ExternalHandler getHandler(Socket socket) {
-		return new ClientHandler(this, socket);
+	protected CommandListener getHandler(Socket socket) {
+		return new ClientListener(this, socket);
 	}
 
-	public boolean requestTheOther(JSONObject obj) {
-		return getController().requestServer(obj);
+	public void requestTheOther(Command command) {
+		getController().requestServer(command);
 	}
 
 	public void broadcast(String cmd) {
@@ -90,5 +95,13 @@ public class ClientConnector extends Connector implements Runnable {
 
 	public void removeBroadcastList(String id) {
 		clientSocketsList.remove(id);
+	}
+
+	public MessageQueue getMQ() {
+		return this.clientMQ;
+	}
+
+	public void runInternalRequest(Command cmd) {
+		this.clientMQ.addCmd(cmd);
 	}
 }
