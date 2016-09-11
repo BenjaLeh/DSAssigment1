@@ -353,13 +353,6 @@ public class ClientCmdHandler implements CmdHandler {
 		connector.addBroadcastList(identity, socket);
 	}
 
-	protected void handleDisconnect(Command cmd) {
-		// In case of quit again.
-		if (cmd.getOwner() != null) {
-			handleQuit(cmd);
-		}
-	}
-
 	protected void response(Socket socket, String cmd) {
 		connector.write(socket, cmd);
 	}

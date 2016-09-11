@@ -96,4 +96,10 @@ public class ClientServerCmd extends Command {
 		root.put(P_PORT, String.valueOf(port));
 		return root.toJSONString();
 	}
+
+	public static String quit() {
+		JSONObject root = new JSONObject();
+		root.put(TYPE, TYPE_QUIT);
+		return root.toJSONString();
+	}
 }
