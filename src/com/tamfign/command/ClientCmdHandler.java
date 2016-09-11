@@ -136,6 +136,18 @@ public class ClientCmdHandler implements CmdHandler {
 		}
 	}
 
+	private void lockIdentity(String identity, Socket socket) {
+		if (!ClientListController.getInstance().isIdentityExist(identity)) {
+			connector
+					.requestTheOther(InternalCmd.getInternIdCmd(identity, socket, Command.CMD_LOCK_IDENTITY, identity));
+			releaseIdentity(identity, socket);
+		}
+	}
+
+	private void releaseIdentity(String identity, Socket socket) {
+		connector.requestTheOther(InternalCmd.getInternIdCmd(identity, socket, Command.CMD_RELEASE_IDENTITY, identity));
+	}
+
 	private void handleMessage(Command cmd) {
 		String clientId = cmd.getOwner();
 		String content = (String) cmd.getObj().get(Command.P_CONTENT);
@@ -339,18 +351,6 @@ public class ClientCmdHandler implements CmdHandler {
 		ClientListController.getInstance().addIndentity(identity, Configuration.getServerId(), roomId);
 		ChatRoomListController.getInstance().getChatRoom(roomId).addMember(identity);
 		connector.addBroadcastList(identity, socket);
-	}
-
-	private void lockIdentity(String identity, Socket socket) {
-		if (!ClientListController.getInstance().isIdentityExist(identity)) {
-			connector
-					.requestTheOther(InternalCmd.getInternIdCmd(identity, socket, Command.CMD_LOCK_IDENTITY, identity));
-			releaseIdentity(identity, socket);
-		}
-	}
-
-	private void releaseIdentity(String identity, Socket socket) {
-		connector.requestTheOther(InternalCmd.getInternIdCmd(identity, socket, Command.CMD_RELEASE_IDENTITY, identity));
 	}
 
 	protected void handleDisconnect(Command cmd) {

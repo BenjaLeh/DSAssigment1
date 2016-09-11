@@ -15,20 +15,24 @@ public class MessageQueue implements Runnable {
 	}
 
 	public void addCmd(Command cmd) {
-		synchronized (queue) {
-			this.queue.add(cmd);
-		}
+		this.queue.add(cmd);
 	}
 
 	@Override
 	public void run() {
 		while (true) {
-			synchronized (queue) {
-				if (!this.queue.isEmpty()) {
-					handleCmd(this.queue.poll());
-				}
-			}
+			handleCmd(takeCommand());
 		}
+	}
+
+	private Command takeCommand() {
+		Command ret = null;
+		try {
+			ret = this.queue.take();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return ret;
 	}
 
 	private void handleCmd(Command cmd) {
