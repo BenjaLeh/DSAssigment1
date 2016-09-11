@@ -3,10 +3,6 @@ package listener;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import com.tamfign.connection.Connector;
 import com.tamfign.connection.ConnectorInf;
 
@@ -46,16 +42,5 @@ public abstract class CommandListener implements Runnable {
 
 	protected ConnectorInf getConnector() {
 		return this.connetor;
-	}
-
-	protected JSONObject getCmdObject(String cmd) {
-		JSONObject ret = null;
-		try {
-			ret = (JSONObject) new JSONParser().parse(cmd);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-
-		return ret;
 	}
 }

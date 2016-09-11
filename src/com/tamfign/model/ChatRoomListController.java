@@ -2,7 +2,6 @@ package com.tamfign.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import com.tamfign.configuration.Configuration;
 
@@ -71,7 +70,23 @@ public class ChatRoomListController {
 		}
 	}
 
-	public List<String> getMemberList(String roomId) {
+	public void addMember(String roomId, String identity) {
+		synchronized (this) {
+			if (roomList.get(roomId) != null) {
+				roomList.get(roomId).addMember(identity);
+			}
+		}
+	}
+
+	public void removeMember(String roomId, String identity) {
+		synchronized (this) {
+			if (roomList.get(roomId) != null) {
+				roomList.get(roomId).removeMember(identity);
+			}
+		}
+	}
+
+	public ArrayList<String> getMemberList(String roomId) {
 		synchronized (this) {
 			return roomList.get(roomId).getMemberList();
 		}

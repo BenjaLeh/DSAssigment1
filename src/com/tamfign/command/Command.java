@@ -3,6 +3,8 @@ package com.tamfign.command;
 import java.net.Socket;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class Command {
 	protected final static String TYPE = "type";
@@ -59,6 +61,18 @@ public class Command {
 		this.obj = cmd;
 	}
 
+	public Command(Socket socket, String cmd, String owner) {
+		this.owner = owner;
+		this.socket = socket;
+		this.obj = getCmdObject(cmd);
+	}
+
+	public Command(Command oldCmd, JSONObject obj) {
+		this.owner = oldCmd.getOwner();
+		this.socket = oldCmd.getSocket();
+		this.obj = obj;
+	}
+
 	public Socket getSocket() {
 		return socket;
 	}
@@ -97,5 +111,16 @@ public class Command {
 	public static boolean isClosing(JSONObject obj) {
 		String cmdType = (String) obj.get(Command.TYPE);
 		return Command.TYPE_QUIT.equals(cmdType);
+	}
+
+	public static JSONObject getCmdObject(String cmd) {
+		JSONObject ret = null;
+		try {
+			ret = (JSONObject) new JSONParser().parse(cmd);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		return ret;
 	}
 }

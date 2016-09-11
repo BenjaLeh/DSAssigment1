@@ -44,7 +44,7 @@ public class ClientListener extends CommandListener {
 	@Override
 	protected void handleRequest(String cmdLine) {
 		System.out.println(cmdLine);
-		JSONObject cmdObject = getCmdObject(cmdLine);
+		JSONObject cmdObject = Command.getCmdObject(cmdLine);
 		catchClientId(cmdObject);
 		checkIfClosing(cmdObject);
 		((ClientConnector) getConnector()).getMQ().addCmd(new Command(getSocket(), cmdObject, clientId));

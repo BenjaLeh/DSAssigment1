@@ -8,8 +8,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.tamfign.command.Command;
@@ -73,7 +71,7 @@ public abstract class Connector implements ConnectorInf {
 
 	private boolean readResult(Socket socket) throws ParseException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		return Command.getResult((JSONObject) new JSONParser().parse(br.readLine()));
+		return Command.getResult(Command.getCmdObject((br.readLine())));
 	}
 
 	public String readCmd(Socket socket) throws IOException {

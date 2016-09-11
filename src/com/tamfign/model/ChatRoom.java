@@ -27,15 +27,15 @@ public class ChatRoom {
 		return owner;
 	}
 
-	public void addMember(String identity) {
+	protected void addMember(String identity) {
 		this.members.add(identity);
 	}
 
-	public void addMembers(ArrayList<String> members) {
+	protected void addMembers(ArrayList<String> members) {
 		this.members.addAll(members);
 	}
 
-	public void removeMember(String identity) {
+	protected void removeMember(String identity) {
 		this.members.remove(identity);
 	}
 

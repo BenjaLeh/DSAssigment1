@@ -21,7 +21,7 @@ public class CoordinateListener extends CommandListener {
 	@Override
 	protected void handleRequest(String cmdLine) {
 		System.out.println("Server: " + cmdLine);
-		JSONObject cmdObject = getCmdObject(cmdLine);
+		JSONObject cmdObject = Command.getCmdObject(cmdLine);
 		((CoordinateConnector) getConnector()).getMQ().addCmd(new Command(getSocket(), cmdObject, null));
 	}
 }

@@ -57,60 +57,9 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 		}
 	}
 
-	private void handleJoinRoom(Command cmd) {
-		String roomId = (String) cmd.getObj().get(Command.P_ROOM_ID);
-
-		if (!isOwnerOfRoom(cmd.getOwner()) && isRoomAvailable(roomId)) {
-			ServerConfig server = getServer(roomId);
-			if (!server.isItselft()) {
-				routeClient(cmd.getOwner(), roomId, server, cmd.getSocket());
-			} else {
-				approveJoin(cmd.getOwner(), roomId);
-			}
-		} else {
-			disapproveJoin(cmd.getSocket(), cmd.getOwner(), roomId);
-		}
-	}
-
-	private void handleDeleteRoom(Command cmd) {
-		String roomId = (String) cmd.getObj().get(Command.P_ROOM_ID);
-
-		if (isRoomCanBeDel(cmd.getOwner(), roomId)) {
-			ArrayList<String> currentMemberList = ChatRoomListController.getInstance().getChatRoom(roomId)
-					.getMemberList();
-			deleteRoom(roomId);
-			broadcastDeleteRoom(cmd.getSocket(), cmd.getOwner(), roomId, currentMemberList);
-			approveDeleteRoom(cmd.getSocket(), roomId);
-		} else {
-			disapproveDeleteRoom(cmd.getSocket(), roomId);
-		}
-	}
-
-	private void handleLockRoomId(Command cmd) {
-		String roomId = (String) cmd.getObj().get(Command.P_ROOM_ID);
-
-		if (!ChatRoomListController.getInstance().isRoomExists(roomId)) {
-			connector.requestTheOther(
-					InternalCmd.getInternRoomCmd(cmd.getOwner(), cmd.getSocket(), Command.CMD_LOCK_ROOM, roomId));
-		} else {
-			disapproveChatRoom(cmd.getSocket(), roomId);
-		}
-	}
-
-	private void handleCreateRoom(Command cmd) {
-		String roomId = (String) cmd.getObj().get(Command.P_ROOM_ID);
-		boolean approved = (Boolean) cmd.getObj().get(Command.P_APPROVED);
-
-		releaseRoomId(cmd.getSocket(), cmd.getOwner(), roomId, approved);
-		if (approved) {
-			String currentRoomId = getCurrentRoomId(cmd.getOwner());
-			createChatRoom(cmd.getOwner(), roomId);
-			approveChatRoom(cmd.getSocket(), roomId);
-			broadcastRoomChange(cmd.getOwner(), currentRoomId, roomId);
-		} else {
-			disapproveChatRoom(cmd.getSocket(), roomId);
-		}
-	}
+	/**
+	 * For identity
+	 */
 
 	private void handleNewIdentity(Command cmd) {
 		boolean approved = (Boolean) cmd.getObj().get(Command.P_APPROVED);
@@ -128,37 +77,35 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 		String id = (String) cmd.getObj().get(Command.P_IDENTITY);
 
 		if (id != null && !("").equals(id)) {
-			lockIdentity(id, cmd.getSocket());
+			lockIdentity(id, cmd);
 		} else {
 			sendDisapproveIdentity(cmd.getSocket(), id);
 		}
 	}
 
-	private void lockIdentity(String identity, Socket socket) {
+	private void lockIdentity(String identity, Command cmd) {
 		if (!ClientListController.getInstance().isIdentityExist(identity)) {
-			connector
-					.requestTheOther(InternalCmd.getInternIdCmd(identity, socket, Command.CMD_LOCK_IDENTITY, identity));
-			releaseIdentity(identity, socket);
+			connector.requestTheOther(InternalCmd.getInternIdCmd(cmd, Command.CMD_LOCK_IDENTITY, identity));
+			releaseIdentity(identity, cmd);
 		}
 	}
 
-	private void releaseIdentity(String identity, Socket socket) {
-		connector.requestTheOther(InternalCmd.getInternIdCmd(identity, socket, Command.CMD_RELEASE_IDENTITY, identity));
+	private void releaseIdentity(String identity, Command cmd) {
+		connector.requestTheOther(InternalCmd.getInternIdCmd(cmd, Command.CMD_RELEASE_IDENTITY, identity));
 	}
 
-	private void handleMessage(Command cmd) {
-		String clientId = cmd.getOwner();
-		String content = (String) cmd.getObj().get(Command.P_CONTENT);
-		((ClientConnector) connector).broadcastWithinRoom(null, getCurrentRoomId(clientId),
-				ClientServerCmd.messageCmd(clientId, content));
+	private void sendDisapproveIdentity(Socket socket, String id) {
+		response(socket, ClientServerCmd.newIdentityRs(id, false));
 	}
 
-	private void handleQuit(Command cmd) {
-		if (isOwnerOfRoom(cmd.getOwner())) {
-			deleteRoomAndBroadcastRoomChange(cmd.getSocket(), cmd.getOwner());
-		}
-		removeFromClientList(cmd.getOwner());
-		responseChangeRoomAndTerminate(cmd.getSocket(), cmd.getOwner());
+	private void approveIdentity(Socket socket, String id) {
+		response(socket, ClientServerCmd.newIdentityRs(id, true));
+	}
+
+	private void createIdentity(String identity, Socket socket, String roomId) {
+		ClientListController.getInstance().addIndentity(identity, Configuration.getServerId(), roomId);
+		ChatRoomListController.getInstance().addMember(roomId, identity);
+		connector.addBroadcastList(identity, socket);
 	}
 
 	private void handlerMoveJoin(Command cmd) {
@@ -182,16 +129,116 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 				ClientServerCmd.roomChangeRq(id, formerRoom, newRoom));
 	}
 
-	private void responseChangeRoomAndTerminate(Socket socket, String clientId) {
-		response(socket, ClientServerCmd.roomChangeRq(clientId, "", ""));
-		((ClientConnector) connector).broadcastWithinRoom(null, ChatRoomListController.getLocalMainHall(),
-				ClientServerCmd.roomChangeRq(clientId, "", ""));
-		terminate(socket, clientId);
+	private void handleQuit(Command cmd) {
+		if (isOwnerOfRoom(cmd.getOwner())) {
+			deleteRoomAndBroadcastRoomChange(cmd);
+		}
+		removeFromClientList(cmd.getOwner());
+		responseChangeRoomAndTerminate(cmd.getSocket(), cmd.getOwner());
+	}
+
+	private void removeFromClientList(String clientId) {
+		ChatRoomListController.getInstance().removeMember(getCurrentRoomId(clientId), clientId);
+		ClientListController.getInstance().removeIndentity(clientId);
 	}
 
 	private void handleWho(Command cmd) {
 		ChatRoom room = ChatRoomListController.getInstance().getChatRoom(getCurrentRoomId(cmd.getOwner()));
 		response(cmd.getSocket(), ClientServerCmd.whoRs(room.getName(), room.getMemberList(), room.getOwner()));
+	}
+
+	private void routeClient(String clientId, String roomId, ServerConfig server, Socket socket) {
+		String formerRoom = getCurrentRoomId(clientId);
+		response(socket, ClientServerCmd.routeRq(roomId, server.getHost(), server.getClientPort()));
+		removeFromClientList(clientId);
+		((ClientConnector) connector).broadcastWithinRoom(formerRoom, null,
+				ClientServerCmd.roomChangeRq(clientId, formerRoom, roomId));
+		terminate(socket, clientId);
+	}
+
+	private void terminate(Socket socket, String id) {
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		connector.close(socket);// Will close socket and terminal this thread.
+		connector.removeBroadcastList(id);
+	}
+
+	/**
+	 * For message
+	 */
+
+	private void handleMessage(Command cmd) {
+		String clientId = cmd.getOwner();
+		String content = (String) cmd.getObj().get(Command.P_CONTENT);
+		((ClientConnector) connector).broadcastWithinRoom(null, getCurrentRoomId(clientId),
+				ClientServerCmd.messageCmd(clientId, content));
+	}
+
+	/**
+	 * For room
+	 */
+
+	private void handleJoinRoom(Command cmd) {
+		String roomId = (String) cmd.getObj().get(Command.P_ROOM_ID);
+
+		if (!isOwnerOfRoom(cmd.getOwner()) && isRoomAvailable(roomId)) {
+			ServerConfig server = getServer(roomId);
+			if (!server.isItselft()) {
+				routeClient(cmd.getOwner(), roomId, server, cmd.getSocket());
+			} else {
+				approveJoin(cmd.getOwner(), roomId);
+			}
+		} else {
+			disapproveJoin(cmd.getSocket(), cmd.getOwner(), roomId);
+		}
+	}
+
+	private void handleDeleteRoom(Command cmd) {
+		String roomId = (String) cmd.getObj().get(Command.P_ROOM_ID);
+
+		if (isRoomCanBeDel(cmd.getOwner(), roomId)) {
+			ArrayList<String> currentMemberList = ChatRoomListController.getInstance().getMemberList(roomId);
+			deleteRoom(roomId);
+			broadcastDeleteRoom(cmd, roomId, currentMemberList);
+			approveDeleteRoom(cmd.getSocket(), roomId);
+		} else {
+			disapproveDeleteRoom(cmd.getSocket(), roomId);
+		}
+	}
+
+	private void handleLockRoomId(Command cmd) {
+		String roomId = (String) cmd.getObj().get(Command.P_ROOM_ID);
+
+		if (!ChatRoomListController.getInstance().isRoomExists(roomId)) {
+			connector.requestTheOther(InternalCmd.getInternRoomCmd(cmd, Command.CMD_LOCK_ROOM, roomId));
+		} else {
+			disapproveChatRoom(cmd.getSocket(), roomId);
+		}
+	}
+
+	private void handleCreateRoom(Command cmd) {
+		String roomId = (String) cmd.getObj().get(Command.P_ROOM_ID);
+		boolean approved = (Boolean) cmd.getObj().get(Command.P_APPROVED);
+
+		releaseRoomId(cmd, roomId, approved);
+		if (approved) {
+			String currentRoomId = getCurrentRoomId(cmd.getOwner());
+			createChatRoom(cmd.getOwner(), roomId);
+			approveChatRoom(cmd.getSocket(), roomId);
+			broadcastRoomChange(cmd.getOwner(), currentRoomId, roomId);
+		} else {
+			disapproveChatRoom(cmd.getSocket(), roomId);
+		}
+	}
+
+	private void responseChangeRoomAndTerminate(Socket socket, String clientId) {
+		response(socket, ClientServerCmd.roomChangeRq(clientId, "", ""));
+		((ClientConnector) connector).broadcastWithinRoom(null, ChatRoomListController.getLocalMainHall(),
+				ClientServerCmd.roomChangeRq(clientId, "", ""));
+		terminate(socket, clientId);
 	}
 
 	private String getCurrentRoomId(String clientId) {
@@ -204,14 +251,13 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 		return ret;
 	}
 
-	private void deleteRoomAndBroadcastRoomChange(Socket socket, String clientId) {
-		String roomId = ClientListController.getInstance().getClient(clientId).getOwnRoom();
-		if (isRoomCanBeDel(clientId, roomId)) {
-			ArrayList<String> currentMemberList = ChatRoomListController.getInstance().getChatRoom(roomId)
-					.getMemberList();
-			currentMemberList.remove(clientId);
+	private void deleteRoomAndBroadcastRoomChange(Command cmd) {
+		String roomId = ClientListController.getInstance().getClient(cmd.getOwner()).getOwnRoom();
+		if (isRoomCanBeDel(cmd.getOwner(), roomId)) {
+			ArrayList<String> currentMemberList = ChatRoomListController.getInstance().getMemberList(roomId);
+			currentMemberList.remove(cmd.getOwner());
 			deleteRoom(roomId);
-			broadcastDeleteRoom(socket, clientId, roomId, currentMemberList);
+			broadcastDeleteRoom(cmd, roomId, currentMemberList);
 		}
 	}
 
@@ -225,17 +271,8 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 		return ret;
 	}
 
-	private void removeFromClientList(String clientId) {
-		ChatRoom room = ChatRoomListController.getInstance().getChatRoom(getCurrentRoomId(clientId));
-		if (room != null) {
-			room.removeMember(clientId);
-		}
-		ClientListController.getInstance().removeIndentity(clientId);
-	}
-
-	private void broadcastDeleteRoom(Socket socket, String clientId, String roomId,
-			ArrayList<String> currentMemberList) {
-		connector.requestTheOther(InternalCmd.getInternRoomCmd(clientId, socket, Command.CMD_DELETE_ROOM, roomId));
+	private void broadcastDeleteRoom(Command cmd, String roomId, ArrayList<String> currentMemberList) {
+		connector.requestTheOther(InternalCmd.getInternRoomCmd(cmd, Command.CMD_DELETE_ROOM, roomId));
 
 		for (String id : currentMemberList) {
 			((ClientConnector) connector).broadcastWithinRoom(null, ChatRoomListController.getLocalMainHall(),
@@ -245,7 +282,7 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 
 	private void deleteRoom(String roomId) {
 		// Change room id in the client list.
-		for (String identity : ChatRoomListController.getInstance().getChatRoom(roomId).getMemberList()) {
+		for (String identity : ChatRoomListController.getInstance().getMemberList(roomId)) {
 			ClientListController.getInstance().getClient(identity).setRoomId(ChatRoomListController.getLocalMainHall());
 		}
 		ChatRoomListController.getInstance().deleteRoom(roomId);
@@ -267,25 +304,6 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 			ret = true;
 		}
 		return ret;
-	}
-
-	private void routeClient(String clientId, String roomId, ServerConfig server, Socket socket) {
-		String formerRoom = getCurrentRoomId(clientId);
-		response(socket, ClientServerCmd.routeRq(roomId, server.getHost(), server.getClientPort()));
-		removeFromClientList(clientId);
-		((ClientConnector) connector).broadcastWithinRoom(formerRoom, null,
-				ClientServerCmd.roomChangeRq(clientId, formerRoom, roomId));
-		terminate(socket, clientId);
-	}
-
-	private void terminate(Socket socket, String id) {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		connector.close(socket);// Will close socket and terminal this thread.
-		connector.removeBroadcastList(id);
 	}
 
 	private ServerConfig getServer(String roomId) {
@@ -323,36 +341,21 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 	private void createChatRoom(String clientId, String roomId) {
 		ChatRoomListController.getInstance().addRoom(roomId, Configuration.getServerId(), clientId);
 		ChatRoomListController.getInstance()
-				.getChatRoom(ClientListController.getInstance().getClient(clientId).getRoomId()).removeMember(clientId);
+				.removeMember(ClientListController.getInstance().getClient(clientId).getRoomId(), clientId);
 		ClientListController.getInstance().getClient(clientId).setRoomId(roomId);
 		ClientListController.getInstance().getClient(clientId).setOwnRoom(roomId);
 	}
 
-	private void releaseRoomId(Socket socket, String clientId, String roomId, boolean result) {
-		connector.requestTheOther(
-				InternalCmd.getInternRoomResultCmd(clientId, socket, Command.CMD_RELEASE_ROOM, roomId, result));
+	private void releaseRoomId(Command cmd, String roomId, boolean result) {
+		connector.requestTheOther(InternalCmd.getInternRoomResultCmd(cmd, Command.CMD_RELEASE_ROOM, roomId, result));
 	}
 
 	private void handleList(Command cmd) {
 		response(cmd.getSocket(), ClientServerCmd.listRs(ChatRoomListController.getInstance().getList()));
 	}
 
-	private void sendDisapproveIdentity(Socket socket, String id) {
-		response(socket, ClientServerCmd.newIdentityRs(id, false));
-	}
-
-	private void approveIdentity(Socket socket, String id) {
-		response(socket, ClientServerCmd.newIdentityRs(id, true));
-	}
-
 	private void broadcastRoomChange(String clientId, String former, String newRoom) {
 		((ClientConnector) connector).broadcastWithinRoom(former, newRoom,
 				ClientServerCmd.roomChangeRq(clientId, former, newRoom));
-	}
-
-	private void createIdentity(String identity, Socket socket, String roomId) {
-		ClientListController.getInstance().addIndentity(identity, Configuration.getServerId(), roomId);
-		ChatRoomListController.getInstance().getChatRoom(roomId).addMember(identity);
-		connector.addBroadcastList(identity, socket);
 	}
 }

@@ -66,8 +66,11 @@ public class CoordinateCmdHandler extends CmdHandler implements CmdHandlerInf {
 
 	private void broadcastLockRoomId(Command cmd) {
 		String roomId = (String) cmd.getObj().get(Command.P_ROOM_ID);
-		connector.requestTheOther(InternalCmd.getLockRoomResultCmd(cmd.getOwner(), cmd.getSocket(), roomId,
-				connector.broadcastAndGetResult(ServerServerCmd.lockRoomRq(Configuration.getServerId(), roomId))));
+		connector.requestTheOther(InternalCmd.getLockRoomResultCmd(cmd, roomId, getLockRoomResult(roomId)));
+	}
+
+	private boolean getLockRoomResult(String roomId) {
+		return connector.broadcastAndGetResult(ServerServerCmd.lockRoomRq(Configuration.getServerId(), roomId));
 	}
 
 	private void broadcastReleaseIdentity(Command cmd) {
@@ -77,8 +80,11 @@ public class CoordinateCmdHandler extends CmdHandler implements CmdHandlerInf {
 
 	private void broadcastLockIdentity(Command cmd) {
 		String identity = (String) cmd.getObj().get(Command.P_IDENTITY);
-		connector.requestTheOther(InternalCmd.getLockIdentityResultCmd(cmd.getOwner(), cmd.getSocket(), connector
-				.broadcastAndGetResult(ServerServerCmd.lockIdentityRq(Configuration.getServerId(), identity))));
+		connector.requestTheOther(InternalCmd.getLockIdentityResultCmd(cmd, getLockIdentityResult(identity)));
+	}
+
+	private boolean getLockIdentityResult(String identity) {
+		return connector.broadcastAndGetResult(ServerServerCmd.lockIdentityRq(Configuration.getServerId(), identity));
 	}
 
 	private void handleDeleteRoom(Command cmd) {
