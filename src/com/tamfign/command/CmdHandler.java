@@ -1,6 +1,17 @@
 package com.tamfign.command;
 
-public interface CmdHandler {
+import java.net.Socket;
 
-	public abstract void cmdAnalysis(Command cmd);
+import com.tamfign.connection.ConnectorInf;
+
+public abstract class CmdHandler {
+	protected ConnectorInf connector = null;
+
+	public CmdHandler(ConnectorInf connector) {
+		this.connector = connector;
+	}
+
+	protected void response(Socket socket, String cmd) {
+		connector.write(socket, cmd);
+	}
 }

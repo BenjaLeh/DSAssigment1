@@ -1,9 +1,10 @@
-package com.tamfign.command;
+package listener;
 
 import java.net.Socket;
 
 import org.json.simple.JSONObject;
 
+import com.tamfign.command.Command;
 import com.tamfign.connection.CoordinateConnector;
 
 public class CoordinateListener extends CommandListener {

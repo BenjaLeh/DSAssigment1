@@ -13,7 +13,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.tamfign.command.Command;
-import com.tamfign.command.CommandListener;
+
+import listener.CommandListener;
 
 public abstract class Connector implements ConnectorInf {
 

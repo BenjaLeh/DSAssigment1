@@ -84,4 +84,18 @@ public class Command {
 		}
 		return ret;
 	}
+
+	public static boolean isNewId(JSONObject obj) {
+		String cmdType = (String) obj.get(Command.TYPE);
+		return Command.TYPE_NEW_ID.equals(cmdType) || Command.TYPE_MOVE_JOIN.equals(cmdType);
+	}
+
+	public static String getNewId(JSONObject obj) {
+		return (String) obj.get(Command.P_IDENTITY);
+	}
+
+	public static boolean isClosing(JSONObject obj) {
+		String cmdType = (String) obj.get(Command.TYPE);
+		return Command.TYPE_QUIT.equals(cmdType);
+	}
 }

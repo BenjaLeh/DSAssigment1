@@ -3,17 +3,15 @@ package com.tamfign.command;
 import java.net.Socket;
 
 import com.tamfign.configuration.Configuration;
-import com.tamfign.connection.ConnectorInf;
 import com.tamfign.connection.CoordinateConnector;
 import com.tamfign.model.ChatRoom;
 import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ClientListController;
 
-public class CoordinateCmdHandler implements CmdHandler {
-	private CoordinateConnector connector = null;
+public class CoordinateCmdHandler extends CmdHandler implements CmdHandlerInf {
 
-	public CoordinateCmdHandler(ConnectorInf connector) {
-		this.connector = (CoordinateConnector) connector;
+	public CoordinateCmdHandler(CoordinateConnector connector) {
+		super(connector);
 	}
 
 	public void cmdAnalysis(Command cmd) {
@@ -95,7 +93,7 @@ public class CoordinateCmdHandler implements CmdHandler {
 
 	protected void handleServerOn(Command cmd) {
 		String serverId = (String) cmd.getObj().get(Command.P_SERVER_ID);
-		connector.connectServer(serverId);
+		((CoordinateConnector) connector).connectServer(serverId);
 	}
 
 	private void handleReleaseRoom(Command cmd) {
@@ -176,15 +174,5 @@ public class CoordinateCmdHandler implements CmdHandler {
 			ret = true;
 		}
 		return ret;
-	}
-
-	// TODO refractory
-	protected void handleDisconnect(Command cmd) {
-		// Do nothing, as assuming that servers won't crash.
-	}
-
-	// TODO refractory
-	protected void response(Socket socket, String cmd) {
-		connector.write(socket, cmd);
 	}
 }

@@ -1,9 +1,11 @@
-package com.tamfign.command;
+package listener;
 
 import java.net.Socket;
 
 import org.json.simple.JSONObject;
 
+import com.tamfign.command.ClientServerCmd;
+import com.tamfign.command.Command;
 import com.tamfign.connection.ClientConnector;
 
 public class ClientListener extends CommandListener {
@@ -28,10 +30,13 @@ public class ClientListener extends CommandListener {
 	}
 
 	private void catchClientId(JSONObject cmd) {
-		String cmdType = (String) cmd.get(Command.TYPE);
-		if (Command.TYPE_NEW_ID.equals(cmdType) || Command.TYPE_MOVE_JOIN.equals(cmdType)) {
-			this.clientId = (String) cmd.get(Command.P_IDENTITY);
-		} else if (Command.TYPE_QUIT.equals(cmdType)) {
+		if (Command.isNewId(cmd)) {
+			this.clientId = Command.getNewId(cmd);
+		}
+	}
+
+	private void checkIfClosing(JSONObject cmd) {
+		if (Command.isClosing(cmd)) {
 			aboutClosed = true;
 		}
 	}
@@ -41,6 +46,7 @@ public class ClientListener extends CommandListener {
 		System.out.println(cmdLine);
 		JSONObject cmdObject = getCmdObject(cmdLine);
 		catchClientId(cmdObject);
+		checkIfClosing(cmdObject);
 		((ClientConnector) getConnector()).getMQ().addCmd(new Command(getSocket(), cmdObject, clientId));
 	}
 }

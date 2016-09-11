@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.tamfign.command.CoordinateCmdHandler;
-import com.tamfign.command.CoordinateListener;
 import com.tamfign.command.Command;
-import com.tamfign.command.CommandListener;
 import com.tamfign.command.ServerServerCmd;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.configuration.ServerConfig;
 import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ServerListController;
 
+import listener.CommandListener;
+import listener.CoordinateListener;
 import messagequeue.MessageQueue;
 
 public class CoordinateConnector extends Connector implements Runnable {

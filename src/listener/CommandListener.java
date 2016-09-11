@@ -1,4 +1,4 @@
-package com.tamfign.command;
+package listener;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -46,15 +46,6 @@ public abstract class CommandListener implements Runnable {
 
 	protected ConnectorInf getConnector() {
 		return this.connetor;
-	}
-
-	protected void terminate(String id) {
-		getConnector().close(socket);
-		connetor.removeBroadcastList(id);
-	}
-
-	protected void response(String cmd) {
-		getConnector().write(this.socket, cmd);
 	}
 
 	protected JSONObject getCmdObject(String cmd) {

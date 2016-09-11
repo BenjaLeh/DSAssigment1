@@ -8,13 +8,13 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import com.tamfign.command.ClientCmdHandler;
-import com.tamfign.command.ClientListener;
 import com.tamfign.command.Command;
-import com.tamfign.command.CommandListener;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ServerListController;
 
+import listener.ClientListener;
+import listener.CommandListener;
 import messagequeue.MessageQueue;
 
 public class ClientConnector extends Connector implements Runnable {

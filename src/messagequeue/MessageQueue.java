@@ -2,14 +2,14 @@ package messagequeue;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.tamfign.command.CmdHandler;
+import com.tamfign.command.CmdHandlerInf;
 import com.tamfign.command.Command;
 
 public class MessageQueue implements Runnable {
 	private LinkedBlockingQueue<Command> queue = null;
-	private CmdHandler handler = null;
+	private CmdHandlerInf handler = null;
 
-	public MessageQueue(CmdHandler handler) {
+	public MessageQueue(CmdHandlerInf handler) {
 		this.queue = new LinkedBlockingQueue<Command>();
 		this.handler = handler;
 	}
