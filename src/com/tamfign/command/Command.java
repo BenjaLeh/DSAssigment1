@@ -110,7 +110,7 @@ public class Command {
 
 	public static boolean isClosing(JSONObject obj) {
 		String cmdType = (String) obj.get(Command.TYPE);
-		return Command.TYPE_QUIT.equals(cmdType);
+		return Command.TYPE_QUIT.equals(cmdType)  || Command.TYPE_JOIN.equals(cmdType);
 	}
 
 	public static JSONObject getCmdObject(String cmd) {

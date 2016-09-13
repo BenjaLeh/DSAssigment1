@@ -10,7 +10,7 @@ import com.tamfign.connection.ClientConnector;
 
 public class ClientListener extends CommandListener {
 	private String clientId = null;
-	private boolean aboutClosed = false;
+	private boolean mayAboutClosed = false;
 
 	public ClientListener(ClientConnector connector, Socket socket) {
 		super(connector, socket);
@@ -19,7 +19,7 @@ public class ClientListener extends CommandListener {
 	@Override
 	protected void handleDisconnect() {
 		// In case of quit again.
-		if (!aboutClosed) {
+		if (!mayAboutClosed) {
 			handleQuit();
 		}
 		clientId = null;
@@ -36,8 +36,10 @@ public class ClientListener extends CommandListener {
 	}
 
 	private void checkIfClosing(JSONObject cmd) {
-		if (Command.isClosing(cmd)) {
-			aboutClosed = true;
+		if (!mayAboutClosed && Command.isClosing(cmd)) {
+			mayAboutClosed = true;
+		} else if (mayAboutClosed) {
+			mayAboutClosed = false;
 		}
 	}
 
