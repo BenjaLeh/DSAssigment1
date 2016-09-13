@@ -201,11 +201,19 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 
 		if (isRoomCanBeDel(cmd.getOwner(), roomId)) {
 			ArrayList<String> currentMemberList = ChatRoomListController.getInstance().getMemberList(roomId);
+			cleanOwnership(cmd.getOwner());
 			deleteRoom(roomId);
 			broadcastDeleteRoom(cmd, roomId, currentMemberList);
 			approveDeleteRoom(cmd.getSocket(), roomId);
 		} else {
 			disapproveDeleteRoom(cmd.getSocket(), roomId);
+		}
+	}
+
+	private void cleanOwnership(String clientId) {
+		Client client = ClientListController.getInstance().getClient(clientId);
+		if (client != null) {
+			client.setOwnRoom(null);
 		}
 	}
 

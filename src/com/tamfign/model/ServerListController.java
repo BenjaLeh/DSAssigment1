@@ -20,10 +20,8 @@ public class ServerListController {
 		return _instance;
 	}
 
-	public void addServer(ServerConfig server) {
-		synchronized (this) {
-			serverList.add(server);
-		}
+	public synchronized void addServer(ServerConfig server) {
+		serverList.add(server);
 	}
 
 	public int size() {
@@ -45,17 +43,15 @@ public class ServerListController {
 		return ret;
 	}
 
-	public boolean isAllServerOn() {
-		synchronized (this) {
-			if (!isAllServerActivated) {
-				for (ServerConfig server : serverList) {
-					if (!server.isItselft() && !server.isActived()) {
-						return false;
-					}
+	public synchronized boolean isAllServerOn() {
+		if (!isAllServerActivated) {
+			for (ServerConfig server : serverList) {
+				if (!server.isItselft() && !server.isActived()) {
+					return false;
 				}
-				isAllServerActivated = true;
 			}
-			return isAllServerActivated;
+			isAllServerActivated = true;
 		}
+		return isAllServerActivated;
 	}
 }
