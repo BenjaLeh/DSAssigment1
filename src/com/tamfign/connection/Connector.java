@@ -11,8 +11,7 @@ import java.util.List;
 import org.json.simple.parser.ParseException;
 
 import com.tamfign.command.Command;
-
-import listener.CommandListener;
+import com.tamfign.listener.CommandListener;
 
 public abstract class Connector implements ConnectorInf {
 

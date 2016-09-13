@@ -1,4 +1,4 @@
-package messagequeue;
+package com.tamfign.messagequeue;
 
 import java.util.concurrent.LinkedBlockingQueue;
 

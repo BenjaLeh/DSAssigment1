@@ -10,12 +10,11 @@ import com.tamfign.command.Command;
 import com.tamfign.command.ServerServerCmd;
 import com.tamfign.configuration.Configuration;
 import com.tamfign.configuration.ServerConfig;
+import com.tamfign.listener.CommandListener;
+import com.tamfign.listener.CoordinateListener;
+import com.tamfign.messagequeue.MessageQueue;
 import com.tamfign.model.ChatRoomListController;
 import com.tamfign.model.ServerListController;
-
-import listener.CommandListener;
-import listener.CoordinateListener;
-import messagequeue.MessageQueue;
 
 public class CoordinateConnector extends Connector implements Runnable {
 	private static HashMap<String, Socket> serverList = null;
