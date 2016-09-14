@@ -49,7 +49,7 @@ public class ClientConnector extends Connector implements Runnable {
 	}
 
 	@Override
-	protected CommandListener getHandler(Socket socket) {
+	protected CommandListener getListener(Socket socket) {
 		return new ClientListener(this, socket);
 	}
 

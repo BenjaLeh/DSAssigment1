@@ -111,7 +111,7 @@ public class CoordinateConnector extends Connector implements Runnable {
 	}
 
 	@Override
-	protected CommandListener getHandler(Socket socket) {
+	protected CommandListener getListener(Socket socket) {
 		return new CoordinateListener(this, socket);
 	}
 

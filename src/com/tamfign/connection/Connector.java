@@ -25,7 +25,7 @@ public abstract class Connector implements ConnectorInf {
 		return this.controller;
 	}
 
-	protected abstract CommandListener getHandler(Socket socket);
+	protected abstract CommandListener getListener(Socket socket);
 
 	protected void keepListenPortAndAcceptMultiClient(int port) throws IOException {
 		ServerSocket server = new ServerSocket(port);
@@ -33,7 +33,7 @@ public abstract class Connector implements ConnectorInf {
 		try {
 			while (true) {
 				socket = server.accept();
-				Thread handleThread = new Thread(getHandler(socket));
+				Thread handleThread = new Thread(getListener(socket));
 				handleThread.start();
 			}
 		} catch (IOException e) {
