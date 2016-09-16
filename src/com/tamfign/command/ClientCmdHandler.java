@@ -2,6 +2,8 @@ package com.tamfign.command;
 
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.tamfign.configuration.Configuration;
 import com.tamfign.configuration.ServerConfig;
@@ -13,6 +15,7 @@ import com.tamfign.model.ClientListController;
 import com.tamfign.model.ServerListController;
 
 public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
+	private final static Pattern r = Pattern.compile("^[a-zA-Z]([a-z]|[A-Z]|[0-9]){2,15}");
 
 	public ClientCmdHandler(ClientConnector connector) {
 		super(connector);
@@ -76,11 +79,23 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 	private void handleLockIdentiy(Command cmd) {
 		String id = (String) cmd.getObj().get(Command.P_IDENTITY);
 
-		if (id != null && !("").equals(id)) {
+		if (isIdValid(id)) {
 			lockIdentity(id, cmd);
 		} else {
 			sendDisapproveIdentity(cmd.getSocket(), id);
 		}
+	}
+
+	private boolean isIdValid(String id) {
+		boolean ret = false;
+
+		if (id != null && !("").equals(id)) {
+			Matcher m = r.matcher(id);
+			if (m.matches()) {
+				ret = true;
+			}
+		}
+		return ret;
 	}
 
 	private void lockIdentity(String identity, Command cmd) {
@@ -220,7 +235,7 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 	private void handleLockRoomId(Command cmd) {
 		String roomId = (String) cmd.getObj().get(Command.P_ROOM_ID);
 
-		if (!ChatRoomListController.getInstance().isRoomExists(roomId)) {
+		if (isIdValid(roomId) && !ChatRoomListController.getInstance().isRoomExists(roomId)) {
 			connector.requestTheOther(InternalCmd.getInternRoomCmd(cmd, Command.CMD_LOCK_ROOM, roomId));
 		} else {
 			disapproveChatRoom(cmd.getSocket(), roomId);
