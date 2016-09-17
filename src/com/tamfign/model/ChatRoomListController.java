@@ -92,6 +92,15 @@ public class ChatRoomListController {
 		}
 	}
 
+	public boolean isOtherServer(String roomId) {
+		boolean ret = false;
+
+		if (roomList.get(roomId) != null && !Configuration.getServerId().equals(roomList.get(roomId).getServerId())) {
+			ret = true;
+		}
+		return ret;
+	}
+
 	public static String getLocalMainHall() {
 		return MAIN_HALL + Configuration.getServerId();
 	}

@@ -145,11 +145,14 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 	}
 
 	private void handleQuit(Command cmd) {
+		String currentRoom = getCurrentRoomId(cmd.getOwner());
+
 		if (isOwnerOfRoom(cmd.getOwner())) {
+			currentRoom = ChatRoomListController.getLocalMainHall();
 			deleteRoomAndBroadcastRoomChange(cmd);
 		}
 		removeFromClientList(cmd.getOwner());
-		responseChangeRoomAndTerminate(cmd.getSocket(), cmd.getOwner());
+		responseChangeRoomAndTerminate(cmd, currentRoom);
 	}
 
 	private void removeFromClientList(String clientId) {
@@ -257,11 +260,11 @@ public class ClientCmdHandler extends CmdHandler implements CmdHandlerInf {
 		}
 	}
 
-	private void responseChangeRoomAndTerminate(Socket socket, String clientId) {
-		response(socket, ClientServerCmd.roomChangeRq(clientId, "", ""));
-		((ClientConnector) connector).broadcastWithinRoom(null, ChatRoomListController.getLocalMainHall(),
-				ClientServerCmd.roomChangeRq(clientId, "", ""));
-		terminate(socket, clientId);
+	private void responseChangeRoomAndTerminate(Command cmd, String perviousRoom) {
+		response(cmd.getSocket(), ClientServerCmd.roomChangeRq(cmd.getOwner(), "", ""));
+		((ClientConnector) connector).broadcastWithinRoom(null, perviousRoom,
+				ClientServerCmd.roomChangeRq(cmd.getOwner(), "", ""));
+		terminate(cmd.getSocket(), cmd.getOwner());
 	}
 
 	private String getCurrentRoomId(String clientId) {

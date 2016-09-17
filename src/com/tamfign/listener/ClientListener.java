@@ -36,7 +36,7 @@ public class ClientListener extends CommandListener {
 	}
 
 	private void checkIfClosing(JSONObject cmd) {
-		if (!mayAboutClosed && Command.isClosing(cmd)) {
+		if (!mayAboutClosed && (Command.isClosing(cmd) || (Command.isMoving(cmd)))) {
 			mayAboutClosed = true;
 		} else if (mayAboutClosed) {
 			mayAboutClosed = false;

@@ -6,6 +6,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.tamfign.model.ChatRoomListController;
+
 public class Command {
 	protected final static String TYPE = "type";
 	protected final static String CMD = "type";
@@ -110,7 +112,18 @@ public class Command {
 
 	public static boolean isClosing(JSONObject obj) {
 		String cmdType = (String) obj.get(Command.TYPE);
-		return Command.TYPE_QUIT.equals(cmdType)  || Command.TYPE_JOIN.equals(cmdType);
+		return Command.TYPE_QUIT.equals(cmdType);
+	}
+
+	public static boolean isMoving(JSONObject obj) {
+		boolean ret = false;
+
+		String cmdType = (String) obj.get(Command.TYPE);
+		if (Command.TYPE_JOIN.equals(cmdType)) {
+			String roomId = (String) obj.get(Command.P_ROOM_ID);
+			ret = ChatRoomListController.getInstance().isOtherServer(roomId);
+		}
+		return ret;
 	}
 
 	public static JSONObject getCmdObject(String cmd) {
